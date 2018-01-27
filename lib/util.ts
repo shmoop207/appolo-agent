@@ -5,8 +5,6 @@ import querystring = require('querystring');
 export class Util  {
 
 
-
-
     public static decodeParam(val: string): string {
         if (typeof val !== 'string' || val.length === 0) {
             return val;
