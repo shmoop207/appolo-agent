@@ -27,7 +27,7 @@
     "rocket-lru": "^1.0.1",
     "cookie": "^0.3.1",
     "qs": "^6.5.1",
-    "rocketroute": "^1.0.3",
+    "rocketroute": "^1.0.4",
     "tslib": "^1.9.0",
     "type-is": "^1.6.15"
   },

@@ -32,6 +32,8 @@ export class App {
         errorStack: false,
         errorMessage: true,
         maxRouteCache: 10000,
+        useRouteCache: true,
+        decodeUrlParams: false,
         qsParser: "qs",
         urlParser: "fast",
         viewExt: "html",
@@ -48,7 +50,12 @@ export class App {
 
         this._middlewares = [];
 
-        this._router = new Router();
+        this._router = new Router({
+            useCache: this._options.useRouteCache,
+            maxCacheSize: this._options.maxRouteCache,
+            decodeUrlParams: this._options.decodeUrlParams
+        });
+
         this._view = new View(this._options);
 
         this._server = Server.createServer(this);
@@ -77,8 +84,7 @@ export class App {
 
         let {query, pathname} = this._urlParse(req.url);
 
-        req.query = this._qsParse(query as string);
-
+        req.query = req.url.indexOf("?") > -1 ? this._qsParse(query) : {};
         req.pathName = pathname;
         req.originUrl = req.url;
         req.app = this;
@@ -155,15 +161,17 @@ export class App {
         return this._router;
     }
 
-    public  close():PromiseLike<void> {
+    public close(): PromiseLike<void> {
         return Q.fromCallback(c => this._server.close(c));
     }
 
-    public async listen(port: number, cb?: Function): Promise<void> {
+    public async listen(port: number, cb?: Function): Promise<App> {
         this._initialize();
 
         await Q.fromCallback(c => this._server.listen(port, c));
 
-        (cb) && cb();
+        (cb) && cb(this);
+
+        return this;
     }
 }

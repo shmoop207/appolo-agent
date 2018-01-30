@@ -3,6 +3,8 @@ export interface IOptions{
     errorStack?: boolean,
     errorMessage?: boolean,
     maxRouteCache?: number,
+    useRouteCache?:boolean,
+    decodeUrlParams?:boolean,
     qsParser?: "qs" | "querystring"
     urlParser?: "url" | "fast"
     viewEngine?: (path: string, options?: { cache?: boolean, [otherOptions: string]: any }) => Promise<string>;
