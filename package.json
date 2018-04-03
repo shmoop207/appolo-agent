@@ -1,5 +1,5 @@
 {
-  "name": "rocketjet",
+  "name": "rocket-server",
   "description": "Fast and simple http server framework",
   "keywords": [
     "http",
