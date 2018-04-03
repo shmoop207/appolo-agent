@@ -46,7 +46,7 @@ describe("e2e", () => {
         });
 
         it('should call  with params url encoded ', async () => {
-            await app
+            let app  = await  rocketjet({decodeUrlParams:true})
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
                     res.json({query: req.query, params: req.params})
                 })
@@ -61,8 +61,10 @@ describe("e2e", () => {
 
             should.exist(res.body);
 
-            res.body.params.name.should.be.eq("bbb");
+            res.body.params.name.should.be.eq("http://www.cnn.com");
             res.body.params.id.should.be.eq("aaa");
+
+            await app.close();
         })
     });
 

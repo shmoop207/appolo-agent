@@ -34,7 +34,7 @@ describe("e2e", () => {
             res.body.params.id.should.be.eq("aaa");
         }));
         it('should call  with params url encoded ', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+            let app = yield index_1.rocketjet({ decodeUrlParams: true })
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
             })
@@ -44,8 +44,9 @@ describe("e2e", () => {
             res.should.to.have.status(200);
             res.should.to.be.json;
             should.exist(res.body);
-            res.body.params.name.should.be.eq("bbb");
+            res.body.params.name.should.be.eq("http://www.cnn.com");
             res.body.params.id.should.be.eq("aaa");
+            yield app.close();
         }));
     });
     describe('json', function () {

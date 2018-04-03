@@ -161,8 +161,14 @@ export class App {
         return this._router;
     }
 
-    public close(): PromiseLike<void> {
-        return Q.fromCallback(c => this._server.close(c));
+    public async close(): Promise<void> {
+        try{
+            await Q.fromCallback(c => this._server.close(c));
+        } catch (e){
+            if(e.message !=="Not running"){
+                throw e;
+            }
+        }
     }
 
     public async listen(port: number, cb?: Function): Promise<App> {
