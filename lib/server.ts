@@ -1,4 +1,4 @@
-import {App} from "./app";
+import {App} from "./agent";
 import    fs = require('fs');
 import    http = require('http');
 import    https = require('https');

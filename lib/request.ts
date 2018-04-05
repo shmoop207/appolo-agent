@@ -3,7 +3,7 @@ import    _ = require('lodash');
 import {Url, parse} from "url";
 import typeis = require('type-is');
 import {NextFn} from "./types";
-import {App} from "./app";
+import {App} from "./agent";
 
 
 export interface IRequest extends http.IncomingMessage, AppRequest {

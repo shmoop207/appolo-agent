@@ -17,7 +17,7 @@ import {Server} from "./server";
 import {handleMiddleware} from "./middleware";
 import {View} from "./view";
 
-export class App {
+export class Agent {
 
     private _middlewares: MiddlewareHandler[];
     private _server: http.Server | https.Server;
@@ -170,7 +170,7 @@ export class App {
         }
     }
 
-    public async listen(port: number, cb?: Function): Promise<App> {
+    public async listen(port: number, cb?: Function): Promise<Agent> {
         this._initialize();
 
         await Q.fromCallback(c => this._server.listen(port, c));

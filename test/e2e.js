@@ -12,7 +12,7 @@ let should = chai.should();
 describe("e2e", () => {
     let app;
     beforeEach(() => {
-        app = index_1.rocketjet();
+        app = index_1.createAgent();
     });
     afterEach(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
         yield app.close();
@@ -34,7 +34,7 @@ describe("e2e", () => {
             res.body.params.id.should.be.eq("aaa");
         }));
         it('should call  with params url encoded ', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let app = yield index_1.rocketjet({ decodeUrlParams: true })
+            let app = yield index_1.createAgent({ decodeUrlParams: true })
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
             })
@@ -126,17 +126,14 @@ describe("e2e", () => {
             should.not.exist(res.header["content-type"]);
             res.text.should.be.eq("");
         }));
-        // it("Should  and get route", async () => {
-        //     let app = rocketjet();
-        //
-        //     await app.get("/test/1", (req:IRequest,res:IResponse)=> {
-        //         res.send("working")
-        //     }).listen(3000)
-        //
-        //     let result= await supertest(app.handle).get("/test/1")
-        //
-        //     result.text.should.eq("working")
-        // });
+        it("Should  and get route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            let app = index_1.createAgent();
+            yield app.get("/test/1", (req, res) => {
+                res.send("working");
+            }).listen(3000);
+            let result = yield request(app.handle).get("/test/1");
+            result.text.should.eq("working");
+        }));
     });
 });
 //# sourceMappingURL=e2e.js.map

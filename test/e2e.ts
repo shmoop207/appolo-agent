@@ -1,9 +1,9 @@
 import chai = require("chai");
 import request = require("supertest");
-import {rocketjet} from "../index"
+import {createAgent} from "../index"
 import {IRequest} from "../lib/request";
 import {IResponse} from "../lib/response";
-import {App} from "../lib/app";
+import {Agent} from "../lib/agent";
 import {cors} from "./mock/corsMiddleware";
 import   chaiHttp = require('chai-http');
 import   bodypaser = require('body-parser');
@@ -13,10 +13,10 @@ let should = chai.should();
 
 
 describe("e2e", () => {
-    let app: App;
+    let app: Agent;
 
     beforeEach(() => {
-        app = rocketjet();
+        app = createAgent();
     });
 
     afterEach(async () => {
@@ -46,7 +46,7 @@ describe("e2e", () => {
         });
 
         it('should call  with params url encoded ', async () => {
-            let app  = await  rocketjet({decodeUrlParams:true})
+            let app = await  createAgent({decodeUrlParams: true})
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
                     res.json({query: req.query, params: req.params})
                 })
@@ -182,17 +182,17 @@ describe("e2e", () => {
         });
 
 
-        // it("Should  and get route", async () => {
-        //     let app = rocketjet();
-        //
-        //     await app.get("/test/1", (req:IRequest,res:IResponse)=> {
-        //         res.send("working")
-        //     }).listen(3000)
-        //
-        //     let result= await supertest(app.handle).get("/test/1")
-        //
-        //     result.text.should.eq("working")
-        // });
+        it("Should  and get route", async () => {
+            let app = createAgent();
+
+            await app.get("/test/1", (req: IRequest, res: IResponse) => {
+                res.send("working")
+            }).listen(3000)
+
+            let result = await request(app.handle).get("/test/1")
+
+            result.text.should.eq("working")
+        });
 
 
     });

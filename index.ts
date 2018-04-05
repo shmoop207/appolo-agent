@@ -1,16 +1,16 @@
 import {IOptions} from "./lib/IOptions";
-import {App} from "./lib/app";
+import {Agent} from "./lib/agent";
 import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./lib/types";
 
-export {App} from './lib/app'
+export {Agent} from './lib/agent'
 export {IRequest} from './lib/request'
 export {IResponse} from './lib/response'
-export {MiddlewareHandlerParams,MiddlewareHandler,MiddlewareHandlerAny,NextFn} from './lib/types'
+export {MiddlewareHandlerParams, MiddlewareHandler, MiddlewareHandlerAny, NextFn} from './lib/types'
 
-// export  function rocketjet(options?: IOptions) {
-//     return new App(options)
-// }
+export function createAgent(options?: IOptions) {
+    return new Agent(options)
+}
 
 export default function (options?: IOptions) {
-    return new App(options);
+    return new Agent(options);
 }
