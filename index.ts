@@ -7,10 +7,10 @@ export {IRequest} from './lib/request'
 export {IResponse} from './lib/response'
 export {MiddlewareHandlerParams,MiddlewareHandler,MiddlewareHandlerAny,NextFn} from './lib/types'
 
-export  function rocketjet(options?: IOptions) {
-    return new App(options)
-}
+// export  function rocketjet(options?: IOptions) {
+//     return new App(options)
+// }
 
 export default function (options?: IOptions) {
-    return rocketjet(options);
+    return new App(options);
 }
