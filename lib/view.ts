@@ -1,4 +1,4 @@
-import {Cache} from "rocket-lru";
+import {Cache} from "appolo-cache";
 import fs = require("fs");
 import _ = require("lodash");
 import path = require("path");
