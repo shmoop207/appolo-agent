@@ -5,6 +5,7 @@ import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn
 export {Agent} from './lib/agent'
 export {IRequest} from './lib/request'
 export {IResponse} from './lib/response'
+export {Methods} from 'appolo-route';
 export {MiddlewareHandlerParams, MiddlewareHandler, MiddlewareHandlerAny, NextFn} from './lib/types'
 
 export function createAgent(options?: IOptions) {
