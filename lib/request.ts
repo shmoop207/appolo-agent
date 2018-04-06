@@ -12,7 +12,8 @@ export interface IRequest extends http.IncomingMessage, AppRequest {
 
 interface AppRequest {
     query?: { [index: string]: any }
-    app:App;
+    app: App;
+    route: any;
     body?: { [index: string]: any }
     params?: { [index: string]: any }
     model?: { [index: string]: any }

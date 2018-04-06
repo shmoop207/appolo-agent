@@ -2,7 +2,7 @@ import {IOptions} from "./IOptions";
 import    http = require('http');
 import    https = require('https');
 import    _ = require('lodash');
-import {Router,Methods} from 'appolo-route';
+import {Router, Methods} from 'appolo-route';
 import {createRequest, IRequest} from "./request";
 import {createResponse, IResponse} from "./response";
 import {HttpError} from "./httpError";
@@ -99,8 +99,8 @@ export class Agent {
         }
 
         req.params = route.params;
-
-        handleMiddleware(req, res, 0, route.handler);
+        req.route = route.handler.route;
+        handleMiddleware(req, res, 0, route.handler.handlers);
     }
 
     public render(path: string | string[], params?: any): Promise<string> {
@@ -138,11 +138,11 @@ export class Agent {
         return this.add(Methods.HEAD, path, handler);
     }
 
-    public add(method: keyof typeof Methods, path: string, handlers: MiddlewareHandlerParams[]): this {
+    public add(method: keyof typeof Methods, path: string, handlers: MiddlewareHandlerParams[], route?: any): this {
 
-        let dtoHandler = _(handlers).map(handler => _.isArray(handler) ? handler : [handler]).flatten().value();
+        let dtoHandlers = _(handlers).map(handler => _.isArray(handler) ? handler : [handler]).flatten().value();
 
-        this._router.add(method, path, dtoHandler);
+        this._router.add(method, path, {handlers: dtoHandlers, route});
         return this;
     }
 
@@ -161,10 +161,10 @@ export class Agent {
     }
 
     public async close(): Promise<void> {
-        try{
+        try {
             await Q.fromCallback(c => this._server.close(c));
-        } catch (e){
-            if(e.message !=="Not running"){
+        } catch (e) {
+            if (e.message !== "Not running") {
                 throw e;
             }
         }

@@ -1,4 +1,4 @@
-import {rocketjet}  from "../index"
+import {createAgent} from "../index"
 
 
 function one(req, res, next) {
@@ -11,12 +11,12 @@ function two(req, res, next) {
     next();
 }
 
-rocketjet().use(one).use(two)
+createAgent().use(one).use(two)
     .get('/test/', (req, res) => {
         res.send(`hello world`);
     })
-    .listen(3000,()=>{
-       console.log("running rocketjet");
+    .listen(3000, () => {
+        console.log("running rocketjet");
 
     });
 
