@@ -3,6 +3,7 @@ import {Agent} from "./lib/agent";
 import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./lib/types";
 
 export {Agent} from './lib/agent'
+export {HttpError} from './lib/httpError'
 export {IRequest} from './lib/request'
 export {IResponse} from './lib/response'
 export {Methods} from 'appolo-route';
