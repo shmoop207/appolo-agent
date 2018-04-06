@@ -1,10 +1,10 @@
-import {App} from "./agent";
+import {Agent} from "./agent";
 import    fs = require('fs');
 import    http = require('http');
 import    https = require('https');
 
 export class Server {
-    public static createServer(app: App): http.Server | https.Server {
+    public static createServer(app: Agent): http.Server | https.Server {
         let ssl = app.options.ssl;
 
         if (!ssl || !ssl.key || !ssl.cert) {

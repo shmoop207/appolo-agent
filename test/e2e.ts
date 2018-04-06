@@ -194,6 +194,18 @@ describe("e2e", () => {
             result.text.should.eq("working")
         });
 
+        it.only("Should  and head route", async () => {
+            let app = createAgent();
+
+            await app.get("/test/1", (req: IRequest, res: IResponse) => {
+                res.send("working")
+            }).listen(3000)
+
+            let result = await request(app.handle).head("/test/1")
+            result.status.should.be.eq(200);
+            should.not.exist(result.text)
+            result.header["content-length"].should.be.eq('7');
+        });
 
     });
 });

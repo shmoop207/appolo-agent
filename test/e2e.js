@@ -134,6 +134,16 @@ describe("e2e", () => {
             let result = yield request(app.handle).get("/test/1");
             result.text.should.eq("working");
         }));
+        it.only("Should  and head route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            let app = index_1.createAgent();
+            yield app.get("/test/1", (req, res) => {
+                res.send("working");
+            }).listen(3000);
+            let result = yield request(app.handle).head("/test/1");
+            result.status.should.be.eq(200);
+            should.not.exist(result.text);
+            result.header["content-length"].should.be.eq('7');
+        }));
     });
 });
 //# sourceMappingURL=e2e.js.map

@@ -143,6 +143,9 @@ export class Agent {
         let dtoHandlers = _(handlers).map(handler => _.isArray(handler) ? handler : [handler]).flatten().value();
 
         this._router.add(method, path, {handlers: dtoHandlers, route});
+        if (method != Methods.HEAD) {
+            this._router.add(Methods.HEAD, path, {handlers: dtoHandlers, route});
+        }
         return this;
     }
 
