@@ -127,15 +127,15 @@ describe("e2e", () => {
             res.text.should.be.eq("");
         }));
         it("Should  and get route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let app = index_1.createAgent();
+            app = index_1.createAgent();
             yield app.get("/test/1", (req, res) => {
                 res.send("working");
             }).listen(3000);
             let result = yield request(app.handle).get("/test/1");
             result.text.should.eq("working");
         }));
-        it.only("Should  and head route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let app = index_1.createAgent();
+        it("Should  and head route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            app = index_1.createAgent();
             yield app.get("/test/1", (req, res) => {
                 res.send("working");
             }).listen(3000);

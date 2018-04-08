@@ -183,7 +183,7 @@ describe("e2e", () => {
 
 
         it("Should  and get route", async () => {
-            let app = createAgent();
+             app = createAgent();
 
             await app.get("/test/1", (req: IRequest, res: IResponse) => {
                 res.send("working")
@@ -192,10 +192,11 @@ describe("e2e", () => {
             let result = await request(app.handle).get("/test/1")
 
             result.text.should.eq("working")
+
         });
 
-        it.only("Should  and head route", async () => {
-            let app = createAgent();
+        it("Should  and head route", async () => {
+             app = createAgent();
 
             await app.get("/test/1", (req: IRequest, res: IResponse) => {
                 res.send("working")

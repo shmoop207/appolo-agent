@@ -3,7 +3,7 @@ import    _ = require('lodash');
 import {Url, parse} from "url";
 import typeis = require('type-is');
 import {NextFn} from "./types";
-import {App} from "./agent";
+import {Agent} from "./agent";
 
 
 export interface IRequest extends http.IncomingMessage, AppRequest {
@@ -12,7 +12,7 @@ export interface IRequest extends http.IncomingMessage, AppRequest {
 
 interface AppRequest {
     query?: { [index: string]: any }
-    app: App;
+    app: Agent;
     route: any;
     body?: { [index: string]: any }
     params?: { [index: string]: any }

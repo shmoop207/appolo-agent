@@ -2,8 +2,6 @@ import    http = require('http');
 import    zlib = require('zlib');
 import    cookie = require('cookie');
 import    _ = require('lodash');
-
-
 import {IRequest} from "./request";
 
 const statusEmpty = {
@@ -34,7 +32,7 @@ interface IAppResponse {
 
     jsonp(obj: object)
 
-    render(path: string|string[], params?: any)
+    render(path: string | string[], params?: any)
 
     render(params?: any)
 
@@ -66,7 +64,7 @@ proto.json = function (obj: any) {
     this.send(JSON.stringify(obj))
 };
 
-proto.render = function (path: string|string[], params?: any) {
+proto.render = function (path: string | string[], params?: any) {
     if (arguments.length == 1 && typeof path !== "string") {
         params = path;
         path = "";
@@ -126,12 +124,12 @@ proto.clearCookie = function (name: string, options?: cookie.CookieSerializeOpti
     return this;
 }
 
-proto.redirect = function (path:string):void {
+proto.redirect = function (path: string): void {
 
-    if(this.statusCode){
+    if (this.statusCode) {
         this.statusCode = 302;
     }
-    this.setHeader("Location",path);
+    this.setHeader("Location", path);
     this.send()
 }
 
@@ -192,7 +190,7 @@ proto.send = function (data?: string | Buffer) {
     //send empty
     if (isEmptyStatusCode || data == undefined) {
         this.setHeader('Content-Length', '0');
-        setImmediate(() => this.end());
+        this.end();
         return
     }
 
@@ -209,7 +207,7 @@ proto.send = function (data?: string | Buffer) {
 
     this.setHeader('Content-Length', isBuffer ? data.length : Buffer.byteLength(data as string, 'utf8'));
 
-    setImmediate(() => this.req.method === 'HEAD' ? this.end() : this.end(data));
+    this.req.method.charCodeAt(0) == 72 ? this.end() : this.end(data);
 };
 
 

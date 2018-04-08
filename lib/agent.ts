@@ -1,21 +1,21 @@
 import {IOptions} from "./IOptions";
-import    http = require('http');
-import    https = require('https');
-import    _ = require('lodash');
-import {Router, Methods} from 'appolo-route';
+import {Methods, Router} from 'appolo-route';
 import {createRequest, IRequest} from "./request";
 import {createResponse, IResponse} from "./response";
 import {HttpError} from "./httpError";
-import    url = require('url');
-import    qs = require('qs');
-import    Q = require('bluebird');
-import    querystring = require('querystring');
 import {Util} from "./util";
 import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./types";
 import {ErrorHandler} from "./errorHandler";
 import {Server} from "./server";
 import {handleMiddleware} from "./middleware";
 import {View} from "./view";
+import    http = require('http');
+import    https = require('https');
+import    _ = require('lodash');
+import    url = require('url');
+import    qs = require('qs');
+import    Q = require('bluebird');
+import    querystring = require('querystring');
 
 export class Agent {
 
@@ -42,7 +42,7 @@ export class Agent {
 
     public constructor(options?: IOptions) {
 
-        this._options = _.extend(this.Defaults, options || {});
+        this._options = _.extend({}, this.Defaults, options || {});
 
         this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
@@ -61,7 +61,7 @@ export class Agent {
     }
 
     private _initialize() {
-        this._middlewares.push((req: IRequest, res: IResponse, next) => this._initRoute(req, res, next));
+        this._middlewares.push(this._initRoute);
     }
 
 
@@ -89,7 +89,7 @@ export class Agent {
         req.app = this;
     }
 
-    private _initRoute(req: IRequest, res: IResponse, next: NextFn): void {
+    private _initRoute = (req: IRequest, res: IResponse, next: NextFn): void => {
 
         let route = this._router.find(req.method as Methods, req.pathName);
 
