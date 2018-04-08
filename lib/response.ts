@@ -183,9 +183,7 @@ proto.send = function (data?: string | Buffer) {
         return;
     }
 
-    let statusCode = this.statusCode || (this.statusCode = 200),
-        isEmptyStatusCode = !!statusEmpty[statusCode],
-        hasContentType = this.hasHeader("Content-Type"), isBuffer = Buffer.isBuffer(data);
+    let isEmptyStatusCode = statusEmpty[this.statusCode || (this.statusCode = 200)]
 
     //send empty
     if (isEmptyStatusCode || data == undefined) {
@@ -194,10 +192,10 @@ proto.send = function (data?: string | Buffer) {
         return
     }
 
-    if (!hasContentType) {
+    if (!this.hasHeader("Content-Type")) {
         if (typeof data === 'string' || this.getHeader("Content-Encoding") == "gzip") {
             this.setHeader("Content-Type", "text/plain;charset=utf-8");
-        } else if (isBuffer) {
+        } else if (Buffer.isBuffer(data)) {
             this.setHeader("Content-Type", "application/octet-stream");
         } else {
             data = JSON.stringify(data);
@@ -205,9 +203,9 @@ proto.send = function (data?: string | Buffer) {
         }
     }
 
-    this.setHeader('Content-Length', isBuffer ? data.length : Buffer.byteLength(data as string, 'utf8'));
+    this.setHeader('Content-Length', Buffer.byteLength(data as string, 'utf8'));
 
-    this.req.method.charCodeAt(0) == 72 ? this.end() : this.end(data);
+    this.req.method[0] == 'H' ? this.end() : this.end(data);
 };
 
 

@@ -1,7 +1,7 @@
 import {IResponse} from "./response";
 import {HttpError} from "./httpError";
 
-export class ErrorHandler{
+export class ErrorHandler {
     public static handleError(e: Error | HttpError, res: IResponse) {
 
         let err: HttpError = e as HttpError || new HttpError(500);
@@ -10,35 +10,35 @@ export class ErrorHandler{
 
         let options = res.req.app.options;
 
-        let msg= ErrorHandler.getErrorMessage(err,res.statusCode,options.errorStack,options.errorMessage);
+        let msg = ErrorHandler.getErrorMessage(err, res.statusCode, options.errorStack, options.errorMessage);
 
         res.send(msg);
     }
 
-    private static getStatusCode(err: HttpError):number{
+    private static getStatusCode(err: HttpError): number {
 
-        if((err.status >= 400 && err.status < 600)){
+        if ((err.status >= 400 && err.status < 600)) {
             return err.status
         }
 
-        if(err.statusCode >= 400 && err.statusCode < 600){
-           return err.statusCode;
+        if (err.statusCode >= 400 && err.statusCode < 600) {
+            return err.statusCode;
         }
 
         return 500;
     }
 
-    private static getErrorMessage(e: Error | HttpError,statusCode:number,errorStack:boolean,errorMessage:boolean):string{
+    private static getErrorMessage(e: Error | HttpError, statusCode: number, errorStack: boolean, errorMessage: boolean): string {
 
-        if(e instanceof HttpError && e.data){
+        if (e instanceof HttpError && e.data) {
             return e.data;
         }
 
-        if(statusCode == 500 || errorStack){
+        if (statusCode == 500 && errorStack) {
             return e.stack;
         }
 
-        if(e.toString && errorMessage){
+        if (e.toString && errorMessage) {
             return e.toString();
         }
 
