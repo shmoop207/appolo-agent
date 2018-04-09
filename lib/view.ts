@@ -1,10 +1,10 @@
 import {Cache} from "appolo-cache";
+import {IOptions} from "./IOptions";
+import {HttpError} from "./httpError";
 import fs = require("fs");
 import _ = require("lodash");
 import path = require("path");
 import Q = require("bluebird");
-import {IOptions} from "./IOptions";
-import {HttpError} from "./httpError";
 
 export class View {
 
@@ -46,7 +46,7 @@ export class View {
 
     }
 
-    private async _findPath(paths:string[]):Promise<{path: string}>{
+    private async _findPath(paths: string[]): Promise<{ path: string }> {
         let lookPaths = [];
 
         _.forEach(paths, p => {
@@ -63,7 +63,7 @@ export class View {
         let foundPath = await this._lookup(paths.slice());
 
         if (!foundPath) {
-            throw new HttpError(500, `failed to find view path for ${name}  searched paths ${JSON.stringify(paths)}`)
+            throw new HttpError(500, `failed to find view path searched paths ${JSON.stringify(paths)}`)
         }
 
         if (!this._options.viewEngine) {
