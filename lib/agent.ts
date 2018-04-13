@@ -44,7 +44,7 @@ export class Agent implements IApp {
 
     public constructor(options?: IOptions) {
 
-        this._options = _.extend({}, this.Defaults, options || {});
+        this._options = _.defaults(options || {}, this.Defaults);
 
         this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
