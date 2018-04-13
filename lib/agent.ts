@@ -9,6 +9,7 @@ import {ErrorHandler} from "./errorHandler";
 import {Server} from "./server";
 import {handleMiddleware} from "./middleware";
 import {View} from "./view";
+import {IApp} from "./IApp";
 import    http = require('http');
 import    https = require('https');
 import    _ = require('lodash');
@@ -17,7 +18,7 @@ import    qs = require('qs');
 import    Q = require('bluebird');
 import    querystring = require('querystring');
 
-export class Agent {
+export class Agent implements IApp {
 
     private _middlewares: MiddlewareHandler[];
     private _server: http.Server | https.Server;
@@ -26,6 +27,7 @@ export class Agent {
     private _options: IOptions;
     private _qsParse: (path: string) => any;
     private _urlParse: (path: string) => ({ query: string, pathname?: string });
+    private _requestApp: IApp
 
     protected readonly Defaults: IOptions = {
         errorStack: false,
@@ -58,10 +60,16 @@ export class Agent {
         this._view = new View(this._options);
 
         this._server = Server.createServer(this);
+
+        this._requestApp = this;
     }
 
     private _initialize() {
         this._middlewares.push(this._initRoute);
+    }
+
+    public set requestApp(app: IApp) {
+        this._requestApp = app;
     }
 
 
@@ -86,7 +94,7 @@ export class Agent {
         req.query = query.length ? this._qsParse(query) : {};
         req.pathName = pathname;
         req.originUrl = req.url;
-        req.app = this;
+        req.app = this._requestApp;
     }
 
     private _initRoute = (req: IRequest, res: IResponse, next: NextFn): void => {

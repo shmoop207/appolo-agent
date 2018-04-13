@@ -4,6 +4,7 @@ import {Url, parse} from "url";
 import typeis = require('type-is');
 import {NextFn} from "./types";
 import {Agent} from "./agent";
+import {IApp} from "./IApp";
 
 
 export interface IRequest extends http.IncomingMessage, AppRequest {
@@ -12,7 +13,7 @@ export interface IRequest extends http.IncomingMessage, AppRequest {
 
 interface AppRequest {
     query?: { [index: string]: any }
-    app: Agent;
+    app: IApp;
     route: any;
     body?: { [index: string]: any }
     params?: { [index: string]: any }
