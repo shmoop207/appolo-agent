@@ -74,7 +74,7 @@ proto.render = function (path: string | string[], params?: any) {
         this.setHeader("Content-Type", "text/html;charset=utf-8")
     }
 
-    this.req.app.render(path, params, this)
+    this.req.app.render(path, params,this)
         .then((str: string) => this.send(str))
         .catch((e) => this.req.next(e))
 };

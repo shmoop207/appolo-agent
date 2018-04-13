@@ -5,6 +5,7 @@ const chai = require("chai");
 const request = require("supertest");
 const chaiHttp = require("chai-http");
 const bodypaser = require("body-parser");
+const consolidate = require("consolidate");
 const index_1 = require("../index");
 const corsMiddleware_1 = require("./mock/corsMiddleware");
 const httpError_1 = require("../lib/httpError");
@@ -116,6 +117,24 @@ describe("e2e", () => {
             res.body.body.should.be.ok;
             res.body.body.aaa.should.be.eq("bbb");
             res.body.body.ccc.should.be.eq("ddd");
+        }));
+    });
+    describe('should render view', () => {
+        it("should render view", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            app = yield index_1.createAgent({
+                viewEngine: consolidate.nunjucks, viewFolder: "test/mock"
+            }).listen(3000);
+            app.get("/test/view", (req, res) => {
+                res.render("raw", { test: "working" });
+            });
+            let res = yield request(app.handle)
+                .get('/test/view/');
+            res = yield request(app.handle)
+                .get('/test/view/');
+            res.should.to.have.status(200);
+            res.should.to.be.html;
+            res.text.should.be.ok;
+            res.text.should.be.eq("hello working");
         }));
     });
     describe('should call route with methods options head', function () {

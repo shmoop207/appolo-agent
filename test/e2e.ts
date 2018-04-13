@@ -2,6 +2,7 @@ import chai = require("chai");
 import request = require("supertest");
 import   chaiHttp = require('chai-http');
 import   bodypaser = require('body-parser');
+import consolidate = require('consolidate');
 import {createAgent} from "../index"
 import {IRequest} from "../lib/request";
 import {IResponse} from "../lib/response";
@@ -170,6 +171,34 @@ describe("e2e", () => {
 
     });
 
+    describe('should render view', () => {
+        it("should render view", async () => {
+            app = await createAgent({
+                viewEngine: consolidate.nunjucks, viewFolder: "test/mock"
+            }).listen(3000);
+
+
+            app.get("/test/view", (req: IRequest, res: IResponse) => {
+                res.render("raw", {test: "working"})
+            })
+
+            let res = await request(app.handle)
+                .get('/test/view/')
+
+             res = await request(app.handle)
+                .get('/test/view/')
+
+            res.should.to.have.status(200);
+
+            res.should.to.be.html;
+            res.text.should.be.ok;
+            res.text.should.be.eq("hello working");
+
+        })
+
+
+    })
+
     describe('should call route with methods options head', function () {
         it('should  call  Options', async () => {
 
@@ -205,7 +234,7 @@ describe("e2e", () => {
         it('should  call  Middleware http Error', async () => {
 
             await app.use(function (req, res, next) {
-                next(new HttpError(404, "test",{test:1}))
+                next(new HttpError(404, "test", {test: 1}))
             })
                 .listen(3000);
 

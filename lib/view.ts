@@ -1,6 +1,7 @@
 import {Cache} from "appolo-cache";
 import {IOptions} from "./IOptions";
 import {HttpError} from "./httpError";
+import {IResponse} from "./response";
 import fs = require("fs");
 import path = require("path");
 import Q = require("bluebird");
@@ -15,24 +16,24 @@ export class View {
         this._cache = new Cache({maxSize: this._options.maxRouteCache});
     }
 
-    public async render(paths: string[], params: any): Promise<string> {
+    public async render(paths: string[], params: any, res: IResponse): Promise<string> {
 
         try {
 
             params = params || {};
 
             let item: { path: string } = null;
-
-            for (let i = 0, len = paths.length; i < len; i++) {
-                item = this._cache.peek(paths[i]);
-                if (item) {
-                    break;
-                }
+            if (res) {
+                item = this._cache.peek(`${res.req.url}${res.req.method}`);
             }
 
             if (!item) {
                 item = await  this._findPath(paths);
             }
+            if (res) {
+                this._cache.set(`${res.req.url}${res.req.method}`, item);
+            }
+
 
             let result = await this._options.viewEngine(item.path, {cache: true, ...params});
 
@@ -60,10 +61,10 @@ export class View {
             lookPaths.push(path.resolve(process.cwd(), this._options.viewFolder, p));
         }
 
-        let foundPath = await this._lookup(lookPaths);
+        let foundPath = await this._lookup(lookPaths.slice());
 
         if (!foundPath) {
-            throw new HttpError(500, `failed to find view path searched paths ${JSON.stringify(paths)}`)
+            throw new HttpError(500, `failed to find view path searched paths ${JSON.stringify(lookPaths)}`)
         }
 
         if (!this._options.viewEngine) {
@@ -71,8 +72,6 @@ export class View {
         }
 
         let item = {path: foundPath};
-
-        this._cache.set(foundPath, item);
 
         return item;
     }

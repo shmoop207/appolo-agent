@@ -111,10 +111,10 @@ export class Agent implements IApp {
         handleMiddleware(req, res, 0, route.handler.handlers);
     }
 
-    public render(path: string | string[], params?: any): Promise<string> {
+    public render(path: string | string[], params?: any,res?:IResponse): Promise<string> {
         let paths = _.isArray(path) ? path : [path];
 
-        return this._view.render(paths, params)
+        return this._view.render(paths, params,res)
     }
 
     public get options(): IOptions {
