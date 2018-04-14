@@ -34,7 +34,7 @@ interface IAppResponse {
 
     render(path: string | string[], params?: any)
 
-    render(params?: any)
+    render(params?: any): Promise<void>
 
     send(data?: string | Buffer)
 
@@ -64,7 +64,7 @@ proto.json = function (obj: any) {
     this.send(JSON.stringify(obj))
 };
 
-proto.render = function (path: string | string[], params?: any) {
+proto.render = function (path: string | string[], params?: any): Promise<void> {
     if (arguments.length == 1 && typeof path !== "string") {
         params = path;
         path = "";
@@ -74,7 +74,7 @@ proto.render = function (path: string | string[], params?: any) {
         this.setHeader("Content-Type", "text/html;charset=utf-8")
     }
 
-    this.req.app.render(path, params,this)
+    return this.req.app.render(path, params, this)
         .then((str: string) => this.send(str))
         .catch((e) => this.req.next(e))
 };
