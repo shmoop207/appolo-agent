@@ -16,13 +16,15 @@ export function handleMiddleware(req: IRequest, res: IResponse, num: number, mid
         return;
     }
 
-    let next = function(err) { handleMiddleware(req, res, num + 1, middlewares, err)};
+    let next = function (err) {
+        handleMiddleware(req, res, num + 1, middlewares, err)
+    };
     req.next = next;
 
-    //try {
+    try {
         fn(req, res, next);
-    //} catch (e) {
-    //    ErrorHandler.handleError(e, res);
-    //}
+    } catch (e) {
+        ErrorHandler.handleError(e, res);
+    }
 
 }

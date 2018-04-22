@@ -17,8 +17,8 @@ let child, instance;
                 console.log("running fastify");
                 break;
             default:
-                console.log("running rocketjet");
-                child = child_process_1.exec('node ./benchmarks/rocketjet.js');
+                console.log("running appolo");
+                child = child_process_1.exec('node ./benchmarks/appolo.js');
         }
         child.stdout.on('data', function (data) {
             run();

@@ -18,9 +18,9 @@ let child: ChildProcess, instance;
 
             break;
         default:
-            console.log("running rocketjet");
+            console.log("running appolo");
 
-            child = exec('node ./benchmarks/rocketjet.js');
+            child = exec('node ./benchmarks/appolo.js');
     }
 
 
