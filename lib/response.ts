@@ -40,6 +40,8 @@ interface IAppResponse {
 
     gzip(): IResponse
 
+    cache(seconds: number): IResponse
+
     cookie(key: string, value: any, options?: cookie.CookieSerializeOptions): IResponse
 
     clearCookie(key: string, options?: cookie.CookieSerializeOptions): IResponse
@@ -93,6 +95,12 @@ proto.set = proto.header = function (field: string | { [index: string]: string }
     }
 
     return this
+};
+
+proto.cache = function (seconds: number) {
+    this.setHeader("Cache-Control", `public, max-age=${seconds}`);
+
+    return this;
 };
 
 proto.cookie = function (name: string, value: any, options?: cookie.CookieSerializeOptions): IResponse {
