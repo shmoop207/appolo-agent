@@ -175,7 +175,7 @@ export class Agent implements IApp {
         try {
             await Q.fromCallback(c => this._server.close(c));
         } catch (e) {
-            if (e.code !== "ERR_SERVER_NOT_RUNNING") {
+            if (e.message !=="Not running" && e.code !== "ERR_SERVER_NOT_RUNNING") {
                 throw e;
             }
         }
