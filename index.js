@@ -3,8 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const agent_1 = require("./lib/agent");
 var agent_2 = require("./lib/agent");
 exports.Agent = agent_2.Agent;
-var httpError_1 = require("./lib/httpError");
+var httpError_1 = require("./lib/errors/httpError");
 exports.HttpError = httpError_1.HttpError;
+var badRequestError_1 = require("./lib/errors/badRequestError");
+exports.BadRequestError = badRequestError_1.BadRequestError;
+var internalServerError_1 = require("./lib/errors/internalServerError");
+exports.InternalServerError = internalServerError_1.InternalServerError;
 var appolo_route_1 = require("appolo-route");
 exports.Methods = appolo_route_1.Methods;
 function createAgent(options) {

@@ -4,7 +4,9 @@ import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn
 
 export {Agent} from './lib/agent'
 export {IApp} from './lib/IApp'
-export {HttpError} from './lib/httpError'
+export {HttpError} from './lib/errors/httpError'
+export {BadRequestError} from './lib/errors/badRequestError'
+export {InternalServerError} from './lib/errors/internalServerError'
 export {IRequest} from './lib/request'
 export {IResponse} from './lib/response'
 export {Methods} from 'appolo-route';

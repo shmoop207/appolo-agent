@@ -1,5 +1,6 @@
 import {IResponse} from "./response";
-import {HttpError} from "./httpError";
+import {HttpError} from "./errors/httpError";
+import _ = require("lodash");
 
 export class ErrorHandler {
     public static handleError(e: Error | HttpError, res: IResponse) {
@@ -8,9 +9,9 @@ export class ErrorHandler {
 
         res.statusCode = ErrorHandler.getStatusCode(err);
 
-        let options = res.req.app.options;
+        //let options = res.req.app.options;
 
-        let msg = ErrorHandler.getErrorMessage(err, res.statusCode, options.errorStack, options.errorMessage);
+        let msg = ErrorHandler.getErrorMessage(err, res.statusCode);
 
         res.send(msg);
     }
@@ -28,21 +29,31 @@ export class ErrorHandler {
         return 500;
     }
 
-    private static getErrorMessage(e: Error | HttpError, statusCode: number, errorStack: boolean, errorMessage: boolean): string {
+    private static getErrorMessage(e: Error | HttpError, statusCode: number): any {
 
-        if (e instanceof HttpError && e.data) {
-            return e.data;
+        let dto: any = {
+            statusCode: statusCode,
+            message: e.toString()
+        };
+
+        if (e instanceof HttpError) {
+
+            if (_.isPlainObject(e.data)) {
+                _.extend(dto, e.data)
+            }
+
+            dto.message = e.message;
+
+            if (e.code) {
+                dto.code = e.code
+            }
+
+            if (e.error) {
+                dto.error = e.error.toString()
+            }
         }
 
-        if (statusCode == 500 && errorStack) {
-            return e.stack;
-        }
-
-        if (e.toString && errorMessage) {
-            return e.toString();
-        }
-
-        return statusCode.toString();
+        return dto
 
     }
 }

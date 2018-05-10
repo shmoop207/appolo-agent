@@ -8,7 +8,7 @@ const bodypaser = require("body-parser");
 const consolidate = require("consolidate");
 const index_1 = require("../index");
 const corsMiddleware_1 = require("./mock/corsMiddleware");
-const httpError_1 = require("../lib/httpError");
+const httpError_1 = require("../lib/errors/httpError");
 chai.use(chaiHttp);
 let should = chai.should();
 describe("e2e", () => {
@@ -156,11 +156,11 @@ describe("e2e", () => {
             let res = yield request(app.handle)
                 .get('/test/params/aaa/bbb/?user_name=11');
             res.should.to.have.status(500);
-            res.text.should.be.eq("Error: test error");
+            res.text.should.be.eq('{"statusCode":500,"message":"Error: test error"}');
         }));
         it('should  call  Middleware http Error', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield app.use(function (req, res, next) {
-                next(new httpError_1.HttpError(404, "test", { test: 1 }));
+                next(new httpError_1.HttpError(404, "test", null, { test: 1 }));
             })
                 .listen(3000);
             let res = yield request(app.handle)

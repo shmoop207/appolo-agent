@@ -8,7 +8,7 @@ import {IRequest} from "../lib/request";
 import {IResponse} from "../lib/response";
 import {Agent} from "../lib/agent";
 import {cors} from "./mock/corsMiddleware";
-import {HttpError} from "../lib/httpError";
+import {HttpError} from "../lib/errors/httpError";
 
 chai.use(chaiHttp)
 let should = chai.should();
@@ -185,7 +185,7 @@ describe("e2e", () => {
             let res = await request(app.handle)
                 .get('/test/view/')
 
-             res = await request(app.handle)
+            res = await request(app.handle)
                 .get('/test/view/')
 
             res.should.to.have.status(200);
@@ -228,13 +228,13 @@ describe("e2e", () => {
             res.should.to.have.status(500);
 
 
-            res.text.should.be.eq("Error: test error")
+            res.text.should.be.eq( '{"statusCode":500,"message":"Error: test error"}')
         });
 
         it('should  call  Middleware http Error', async () => {
 
             await app.use(function (req, res, next) {
-                next(new HttpError(404, "test", {test: 1}))
+                next(new HttpError(404, "test", null, {test: 1}))
             })
                 .listen(3000);
 

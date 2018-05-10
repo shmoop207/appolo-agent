@@ -19,6 +19,7 @@ export interface IResponse extends http.ServerResponse, IAppResponse {
 interface IAppResponse {
     req: IRequest
     useGzip: boolean;
+    sending: boolean
 
     status(code: number): IResponse
 
@@ -67,6 +68,9 @@ proto.json = function (obj: any) {
 };
 
 proto.render = function (path: string | string[], params?: any): Promise<void> {
+
+    this.sending = true;
+
     if (arguments.length == 1 && typeof path !== "string") {
         params = path;
         path = "";
@@ -185,6 +189,8 @@ proto.jsonp = function (data: any) {
 };
 
 proto.send = function (data?: string | Buffer) {
+
+    this.sending = true;
     //check if need to gzip
     if (this.useGzip) {
         gzipResponse(this, data);

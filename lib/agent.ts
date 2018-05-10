@@ -2,7 +2,7 @@ import {IOptions} from "./IOptions";
 import {Methods, Router} from 'appolo-route';
 import {createRequest, IRequest} from "./request";
 import {createResponse, IResponse} from "./response";
-import {HttpError} from "./httpError";
+import {HttpError} from "./errors/httpError";
 import {Util} from "./util";
 import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./types";
 import {ErrorHandler} from "./errorHandler";

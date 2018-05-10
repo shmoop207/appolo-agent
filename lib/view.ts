@@ -1,6 +1,6 @@
 import {Cache} from "appolo-cache";
 import {IOptions} from "./IOptions";
-import {HttpError} from "./httpError";
+import {HttpError} from "./errors/httpError";
 import {IResponse} from "./response";
 import fs = require("fs");
 import path = require("path");
