@@ -9,6 +9,10 @@ var badRequestError_1 = require("./lib/errors/badRequestError");
 exports.BadRequestError = badRequestError_1.BadRequestError;
 var internalServerError_1 = require("./lib/errors/internalServerError");
 exports.InternalServerError = internalServerError_1.InternalServerError;
+var unauthorizedError_1 = require("./lib/errors/unauthorizedError");
+exports.UnauthorizedError = unauthorizedError_1.UnauthorizedError;
+var notFoundError_1 = require("./lib/errors/notFoundError");
+exports.NotFoundError = notFoundError_1.NotFoundError;
 var appolo_route_1 = require("appolo-route");
 exports.Methods = appolo_route_1.Methods;
 function createAgent(options) {
