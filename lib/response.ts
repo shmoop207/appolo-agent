@@ -191,13 +191,8 @@ proto.jsonp = function (data: any) {
 proto.send = function (data?: string | Buffer) {
 
     this.sending = true;
-    //check if need to gzip
-    if (this.useGzip) {
-        gzipResponse(this, data);
-        return;
-    }
 
-    let isEmptyStatusCode = statusEmpty[this.statusCode || (this.statusCode = 200)]
+    let isEmptyStatusCode = statusEmpty[this.statusCode || (this.statusCode = 200)];
 
     //send empty
     if (isEmptyStatusCode || data == undefined) {
@@ -215,6 +210,12 @@ proto.send = function (data?: string | Buffer) {
             data = JSON.stringify(data);
             this.setHeader("Content-Type", "application/json; charset=utf-8");
         }
+    }
+
+    //check if need to gzip
+    if (this.useGzip && data) {
+        gzipResponse(this, data);
+        return;
     }
 
     this.setHeader('Content-Length', Buffer.byteLength(data as string, 'utf8'));

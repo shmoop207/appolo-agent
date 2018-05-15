@@ -127,6 +127,9 @@ describe("e2e", () => {
                 .get("/test/json", (req: IRequest, res: IResponse) => {
                     res.gzip().json({query: req.query})
                 })
+                .get("/test/json", (req: IRequest, res: IResponse) => {
+                    res.gzip().json({query: req.query})
+                })
                 .listen(3000);
 
             let res = await request(app.handle)
@@ -142,6 +145,50 @@ describe("e2e", () => {
             res.body.query.should.be.ok;
             res.body.query.aaa.should.be.eq("bbb");
             res.body.query.ccc.should.be.eq("ddd");
+
+        });
+
+        it('should call route with gzip object', async () => {
+
+            await app
+
+                .get("/test/json", (req: IRequest, res: IResponse) => {
+                    res.gzip().send({query: req.query} as any)
+                })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/test/json/?aaa=bbb&ccc=ddd');
+
+            res.should.to.have.status(200);
+            res.should.to.be.json;
+            res.header["content-encoding"].should.be.eq("gzip")
+            res.header["content-length"].should.be.eq("53")
+
+            should.exist(res.body);
+
+            res.body.query.should.be.ok;
+            res.body.query.aaa.should.be.eq("bbb");
+            res.body.query.ccc.should.be.eq("ddd");
+
+        });
+
+        it('should call route with gzip empty', async () => {
+
+            await app
+
+                .get("/test/json", (req: IRequest, res: IResponse) => {
+                    res.gzip().send(null);
+                })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/test/json/?aaa=bbb&ccc=ddd');
+
+            res.should.to.have.status(200);
+
+            res.header["content-length"].should.be.eq("0");
+
 
         });
 
@@ -228,7 +275,7 @@ describe("e2e", () => {
             res.should.to.have.status(500);
 
 
-            res.text.should.be.eq( '{"statusCode":500,"message":"Error: test error"}')
+            res.text.should.be.eq('{"statusCode":500,"message":"Error: test error"}')
         });
 
         it('should  call  Middleware http Error', async () => {
