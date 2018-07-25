@@ -4,7 +4,12 @@
   "keywords": [
     "http",
     "server",
-    "appolo"
+    "appolo",
+    "middleware",
+    "response",
+    "router",
+    "api",
+    "app"
   ],
   "author": {
     "name": "Roman Svichar",
@@ -19,7 +24,7 @@
     "test-cov": "nyc --reporter=text mocha"
   },
   "main": "./index.js",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -57,9 +62,7 @@
     "cli-table": "^0.3.1",
     "consolidate": "^0.15.1",
     "fastify": "^1.3.0",
-    "grunt": "1.0.2",
-    "grunt-cli": "^1.2.0",
-    "grunt-mocha-test": "0.13.3",
+    "express": "^4.16.3",
     "mocha": "^5.1.1",
     "nunjucks": "^3.1.2",
     "nyc": "^11.7.1",

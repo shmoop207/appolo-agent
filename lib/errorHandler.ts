@@ -13,7 +13,7 @@ export class ErrorHandler {
 
         let msg = ErrorHandler.getErrorMessage(err, res.statusCode);
 
-        res.send(msg);
+        res.json(msg);
     }
 
     private static getStatusCode(err: HttpError): number {
@@ -29,9 +29,9 @@ export class ErrorHandler {
         return 500;
     }
 
-    private static getErrorMessage(e: Error | HttpError, statusCode: number): any {
+    private static getErrorMessage(e: Error | HttpError, statusCode: number): { message: string, statusCode: number, code?: number, error?: string } {
 
-        let dto: any = {
+        let dto: { message: string, statusCode: number, code?: number, error?: string } = {
             statusCode: statusCode,
             message: e.toString()
         };

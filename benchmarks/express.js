@@ -1,4 +1,4 @@
-let express   =require('benchmark/express')
+let express   =require('express')
 
 function one(req, res, next) {
     req.one = true;
