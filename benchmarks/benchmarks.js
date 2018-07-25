@@ -1,31 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const Table = require('cli-table');
 const autocannon = require('autocannon');
 let child, instance;
-(function () {
-    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        switch (process.env.TYPE) {
-            case "express":
-                child = child_process_1.exec('node ./benchmarks/express.js');
-                console.log("running express");
-                break;
-            case "fastify":
-                child = child_process_1.exec('node ./benchmarks/fastify.js');
-                console.log("running fastify");
-                break;
-            default:
-                console.log("running appolo");
-                child = child_process_1.exec('node ./benchmarks/appolo.js');
-        }
-        child.stdout.on('data', function (data) {
-            run();
-        });
-        child.stderr.on('data', function (data) {
-            console.log('stderr: ' + data);
-        });
+(async function () {
+    switch (process.env.TYPE) {
+        case "express":
+            child = child_process_1.exec('node ./benchmarks/express.js');
+            console.log("running express");
+            break;
+        case "fastify":
+            child = child_process_1.exec('node ./benchmarks/fastify.js');
+            console.log("running fastify");
+            break;
+        default:
+            console.log("running appolo");
+            child = child_process_1.exec('node ./benchmarks/appolo.js');
+    }
+    child.stdout.on('data', function (data) {
+        run();
+    });
+    child.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
     });
 })();
 function run() {

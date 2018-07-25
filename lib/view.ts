@@ -97,7 +97,7 @@ export class View {
     private async _isFileExist(path: string): Promise<boolean> {
 
         try {
-            let result: fs.Stats = await Q.fromCallback(c => fs.stat(path, c));
+            let result: fs.Stats = await Q.fromCallback< fs.Stats>(c => fs.stat(path, c));
             return result.isFile();
         } catch (e) {
             return false;

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const chai = require("chai");
 const request = require("supertest");
 const chaiHttp = require("chai-http");
@@ -16,17 +15,17 @@ describe("e2e", () => {
     beforeEach(() => {
         app = index_1.createAgent();
     });
-    afterEach(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
-        yield app.close();
-    }));
+    afterEach(async () => {
+        await app.close();
+    });
     describe('params', function () {
-        it('should call route with params', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        it('should call route with params', async () => {
+            await app
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get(`/test/params/aaa/bbb?test=${encodeURIComponent("http://www.cnn.com")}`);
             res.should.to.have.status(200);
             res.should.to.be.json;
@@ -34,31 +33,31 @@ describe("e2e", () => {
             res.body.query.test.should.be.eq("http://www.cnn.com");
             res.body.params.name.should.be.eq("bbb");
             res.body.params.id.should.be.eq("aaa");
-        }));
-        it('should call  with params url encoded ', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let app = yield index_1.createAgent({ decodeUrlParams: true })
+        });
+        it('should call  with params url encoded ', async () => {
+            let app = await index_1.createAgent({ decodeUrlParams: true })
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get(`/test/params/aaa/${encodeURIComponent("http://www.cnn.com")}`);
             res.should.to.have.status(200);
             res.should.to.be.json;
             should.exist(res.body);
             res.body.params.name.should.be.eq("http://www.cnn.com");
             res.body.params.id.should.be.eq("aaa");
-            yield app.close();
-        }));
+            await app.close();
+        });
     });
     describe('json', function () {
-        it('should call route with json', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        it('should call route with json', async () => {
+            await app
                 .get("/test/json", (req, res) => {
                 res.json({ query: req.query });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/json/?aaa=bbb&ccc=ddd');
             res.should.to.have.status(200);
             res.should.to.be.json;
@@ -66,14 +65,14 @@ describe("e2e", () => {
             res.body.query.should.be.ok;
             res.body.query.aaa.should.be.eq("bbb");
             res.body.query.ccc.should.be.eq("ddd");
-        }));
-        it('should call route with post json', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app.use(bodypaser.json())
+        });
+        it('should call route with post json', async () => {
+            await app.use(bodypaser.json())
                 .post("/test/json", (req, res) => {
                 res.json({ body: req.body });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .post('/test/json/')
                 .send({ aaa: "bbb", ccc: "ddd" });
             res.should.to.have.status(200);
@@ -82,11 +81,11 @@ describe("e2e", () => {
             res.body.body.should.be.ok;
             res.body.body.aaa.should.be.eq("bbb");
             res.body.body.ccc.should.be.eq("ddd");
-        }));
+        });
     });
     describe('buffer', function () {
-        it('should call route with gzip json', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        it('should call route with gzip json', async () => {
+            await app
                 .get("/test/json", (req, res) => {
                 res.gzip().json({ query: req.query });
             })
@@ -94,7 +93,7 @@ describe("e2e", () => {
                 res.gzip().json({ query: req.query });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/json/?aaa=bbb&ccc=ddd');
             res.should.to.have.status(200);
             res.should.to.be.json;
@@ -104,14 +103,14 @@ describe("e2e", () => {
             res.body.query.should.be.ok;
             res.body.query.aaa.should.be.eq("bbb");
             res.body.query.ccc.should.be.eq("ddd");
-        }));
-        it('should call route with gzip object', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        });
+        it('should call route with gzip object', async () => {
+            await app
                 .get("/test/json", (req, res) => {
                 res.gzip().send({ query: req.query });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/json/?aaa=bbb&ccc=ddd');
             res.should.to.have.status(200);
             res.should.to.be.json;
@@ -121,25 +120,25 @@ describe("e2e", () => {
             res.body.query.should.be.ok;
             res.body.query.aaa.should.be.eq("bbb");
             res.body.query.ccc.should.be.eq("ddd");
-        }));
-        it('should call route with gzip empty', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        });
+        it('should call route with gzip empty', async () => {
+            await app
                 .get("/test/json", (req, res) => {
                 res.gzip().send(null);
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/json/?aaa=bbb&ccc=ddd');
             res.should.to.have.status(200);
             res.header["content-length"].should.be.eq("0");
-        }));
-        it('should call route with post json', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app.use(bodypaser.json())
+        });
+        it('should call route with post json', async () => {
+            await app.use(bodypaser.json())
                 .post("/test/json", (req, res) => {
                 res.json({ body: req.body });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .post('/test/json/')
                 .send({ aaa: "bbb", ccc: "ddd" });
             res.should.to.have.status(200);
@@ -148,59 +147,59 @@ describe("e2e", () => {
             res.body.body.should.be.ok;
             res.body.body.aaa.should.be.eq("bbb");
             res.body.body.ccc.should.be.eq("ddd");
-        }));
+        });
     });
     describe('should render view', () => {
-        it("should render view", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            app = yield index_1.createAgent({
+        it("should render view", async () => {
+            app = await index_1.createAgent({
                 viewEngine: consolidate.nunjucks, viewFolder: "test/mock"
             }).listen(3000);
             app.get("/test/view", (req, res) => {
                 res.render("raw", { test: "working" });
             });
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/view/');
-            res = yield request(app.handle)
+            res = await request(app.handle)
                 .get('/test/view/');
             res.should.to.have.status(200);
             res.should.to.be.html;
             res.text.should.be.ok;
             res.text.should.be.eq("hello working");
-        }));
+        });
     });
     describe('should call route with methods options head', function () {
-        it('should  call  Options', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app.use(corsMiddleware_1.cors)
+        it('should  call  Options', async () => {
+            await app.use(corsMiddleware_1.cors)
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .options('/test/params/aaa/bbb/?user_name=11');
             res.should.to.have.status(204);
             res.header["access-control-allow-origin"].should.be.eq('*');
             res.header["content-length"].should.be.eq('0');
             res.text.should.be.eq("");
-        }));
-        it('should  call  Middleware error', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app.use(function (req, res, next) {
+        });
+        it('should  call  Middleware error', async () => {
+            await app.use(function (req, res, next) {
                 next(new Error("test error"));
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/params/aaa/bbb/?user_name=11');
             res.should.to.have.status(500);
             res.text.should.be.eq('{"statusCode":500,"message":"Error: test error"}');
-        }));
-        it('should  call  Middleware http Error', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app.use(function (req, res, next) {
+        });
+        it('should  call  Middleware http Error', async () => {
+            await app.use(function (req, res, next) {
                 next(new httpError_1.HttpError(404, "test", null, { test: 1 }));
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/params/aaa/bbb/?user_name=11');
             res.should.to.have.status(404);
             res.body.test.should.be.eq(1);
-        }));
-        it('should call controller Head', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        });
+        it('should call controller Head', async () => {
+            await app
                 .use(corsMiddleware_1.cors)
                 .head("/test/params/:name/:name2", (req, res) => {
                 res.json({
@@ -209,47 +208,47 @@ describe("e2e", () => {
                 });
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .head('/test/params/aaa/bbb/?user_name=11');
             res.should.to.have.status(200);
             res.header["access-control-allow-origin"].should.be.eq('*');
             res.header["content-length"].should.be.eq('33');
             res.header["content-type"].should.be.eq('application/json; charset=utf-8');
             should.not.exist(res.text);
-        }));
-        it('should call controller empty response', () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield app
+        });
+        it('should call controller empty response', async () => {
+            await app
                 .use(corsMiddleware_1.cors)
                 .get("/test/params/empty/:name/:name2", (req, res) => {
                 res.status(204).send();
             })
                 .listen(3000);
-            let res = yield request(app.handle)
+            let res = await request(app.handle)
                 .get('/test/params/empty/aaa/bbb/?user_name=11');
             res.should.to.have.status(204);
             res.header["access-control-allow-origin"].should.be.eq('*');
             res.header["content-length"].should.be.eq('0');
             should.not.exist(res.header["content-type"]);
             res.text.should.be.eq("");
-        }));
-        it("Should  and get route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        });
+        it("Should  and get route", async () => {
             app = index_1.createAgent();
-            yield app.get("/test/1", (req, res) => {
+            await app.get("/test/1", (req, res) => {
                 res.send("working");
             }).listen(3000);
-            let result = yield request(app.handle).get("/test/1");
+            let result = await request(app.handle).get("/test/1");
             result.text.should.eq("working");
-        }));
-        it("Should  and head route", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        });
+        it("Should  and head route", async () => {
             app = index_1.createAgent();
-            yield app.get("/test/1", (req, res) => {
+            await app.get("/test/1", (req, res) => {
                 res.send("working");
             }).listen(3000);
-            let result = yield request(app.handle).head("/test/1");
+            let result = await request(app.handle).head("/test/1");
             result.status.should.be.eq(200);
             should.not.exist(result.text);
             result.header["content-length"].should.be.eq('7');
-        }));
+        });
     });
 });
 //# sourceMappingURL=e2e.js.map
