@@ -9,6 +9,7 @@ export interface IOptions{
     urlParser?: "url" | "fast"
     viewEngine?: (path: string, options?: { cache?: boolean, [otherOptions: string]: any }) => Promise<string>;
     viewFolder?: string
+    viewCache?: boolean
     viewExt?: string
     ssl?: {
         key: string

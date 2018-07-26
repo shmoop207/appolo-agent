@@ -38,6 +38,7 @@ export class Agent implements IApp {
         qsParser: "qs",
         urlParser: "fast",
         viewExt: "html",
+        viewCache:true,
         viewEngine: null,
         viewFolder: ""
     };

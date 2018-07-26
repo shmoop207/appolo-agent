@@ -35,7 +35,7 @@ export class View {
             }
 
 
-            let result = await this._options.viewEngine(item.path, {cache: true, ...params});
+            let result = await this._options.viewEngine(item.path, {cache: this._options.viewCache, ...params});
 
             return result;
 
