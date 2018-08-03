@@ -160,7 +160,7 @@ the response object inherits from [http.ServerResponse](https://nodejs.org/api/h
 #### `res.status(code: number): IResponse`
 set response status code
 ```javascript
-res..status(200).json({name:"value"});
+res.status(200).json({name:"value"});
 ```
 
 #### `res.contentType(type: string): IResponse`
