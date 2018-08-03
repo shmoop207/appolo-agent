@@ -40,8 +40,23 @@ await new Agent({port:3000})
     }).listen();
 ```
 
+
+#### `get server(): http.Server | https.Server`
+get node http server
+
+#### `get router(): Router`
+get router instance
+
+#### `listen(port: number, cb?: Function): Promise<Agent>`
+bind the agent to port
+call callback if provided
+return the agent instance
+
+#### `close(): Promise<void>`
+close the agent connection to http server and clean everything
+
 ## Routing
-### Static route
+#### Static route
 ```javascript
 
 let app  =  new Agent()
@@ -49,19 +64,19 @@ let app  =  new Agent()
     .post("/test/test2", (req,res)=>res.send("working post"));
 
 ```
-### Parametric route
+#### Parametric route
 ```javascript
 
 let router = new Agent()
     .get("/test/:userId/:userName", (req,res)=>res.send("working"));
 ```
-### Wildcard route
+#### Wildcard route
 ```javascript
 
 let router = new Agent()
     .get("/*", (req,res)=>res.send("working"));
 ```
-### Regex route
+#### Regex route
 same syntax as [path-to-regexp](https://github.com/pillarjs/path-to-regexp)
 ```javascript
 
@@ -170,7 +185,7 @@ sets cookie name to value. The value parameter may be a string or object convert
 res.cookie('name', 'test', { domain: '.example.com', path: '/admin', secure: true });
 res.cookie('someName', '{someVal:1}', { expires: new Date(Date.now() + 900000), httpOnly: true });
 ```
-### `res.clearCookie(key: string, options?: cookie.CookieSerializeOptions): IResponse`
+#### `res.clearCookie(key: string, options?: cookie.CookieSerializeOptions): IResponse`
 clears the cookie specified by name.
 ```javascript
 res.cookie('name', 'tobi', { path: '/admin' });
@@ -208,19 +223,6 @@ res.status(404).send('not found');
 res.status(500).send({ error: 'some error' });
 ```
 
-### `get server(): http.Server | https.Server`
-get node http server
-
-### `get router(): Router`
-get router instance
-
-### `listen(port: number, cb?: Function): Promise<Agent>`
-bind the agent to port
-call callback if provided
-return the agent instance
-
-### `close(): Promise<void>`
-close the agent connection to http server and clean everything
 
 ## License
 MIT
