@@ -1,4 +1,6 @@
 # Appolo Agent
+[![Build Status](https://travis-ci.org/shmoop207/appolo-agent.png?branch=master)](https://travis-ci.org/shmoop207/appolo-agent) [![Dependencies status](https://david-dm.org/shmoop207/appolo-agent.png)](https://david-dm.org/shmoop207/appolo-agent) [![NPM version](https://badge.fury.io/js/appolo-agent.svg)](https://badge.fury.io/js/appolo-agent)  [![npm Downloads](https://img.shields.io/npm/dm/appolo-agent.svg?style=flat)](https://www.npmjs.com/package/appolo-agent)
+[![Known Vulnerabilities](https://snyk.io/test/github/shmoop207/appolo-agent/badge.svg)](https://snyk.io/test/github/shmoop207/appolo-agent)
 Fast and simple http server build with typescript and [`appolo-route`](http://https://github.com/shmoop207/appolo-route)
 
 ## Installation:
