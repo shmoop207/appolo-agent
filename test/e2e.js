@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai = require("chai");
+const sinon = require("sinon");
+const sinonChai = require("sinon-chai");
 const request = require("supertest");
 const chaiHttp = require("chai-http");
 const bodypaser = require("body-parser");
@@ -9,6 +11,7 @@ const index_1 = require("../index");
 const corsMiddleware_1 = require("./mock/corsMiddleware");
 const httpError_1 = require("../lib/errors/httpError");
 chai.use(chaiHttp);
+chai.use(sinonChai);
 let should = chai.should();
 describe("e2e", () => {
     let app;
@@ -248,6 +251,25 @@ describe("e2e", () => {
             result.status.should.be.eq(200);
             should.not.exist(result.text);
             result.header["content-length"].should.be.eq('7');
+        });
+    });
+    describe('events', function () {
+        it('should fire events', async () => {
+            let spy = sinon.spy();
+            for (let key in index_1.Events) {
+                app.once(index_1.Events[key], spy);
+            }
+            await app
+                .get("/test/params/:id/:name/", (req, res) => {
+                res.json({ query: req.query, params: req.params });
+            })
+                .listen(3000);
+            let res = await request(app.handle)
+                .get(`/test/params/aaa/bbb?test=${encodeURIComponent("http://www.cnn.com")}`);
+            res.should.to.have.status(200);
+            res.should.to.be.json;
+            await app.close();
+            spy.should.callCount(Object.keys(index_1.Events).length);
         });
     });
 });

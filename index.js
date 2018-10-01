@@ -13,6 +13,8 @@ var unauthorizedError_1 = require("./lib/errors/unauthorizedError");
 exports.UnauthorizedError = unauthorizedError_1.UnauthorizedError;
 var notFoundError_1 = require("./lib/errors/notFoundError");
 exports.NotFoundError = notFoundError_1.NotFoundError;
+var events_1 = require("./lib/events");
+exports.Events = events_1.Events;
 var appolo_route_1 = require("appolo-route");
 exports.Methods = appolo_route_1.Methods;
 function createAgent(options) {

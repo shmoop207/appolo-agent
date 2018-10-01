@@ -1,9 +1,11 @@
 import chai = require("chai");
+import sinon = require("sinon");
+import sinonChai = require("sinon-chai");
 import request = require("supertest");
 import   chaiHttp = require('chai-http');
 import   bodypaser = require('body-parser');
 import consolidate = require('consolidate');
-import {createAgent} from "../index"
+import {createAgent, Events} from "../index"
 import {IRequest} from "../lib/request";
 import {IResponse} from "../lib/response";
 import {Agent} from "../lib/agent";
@@ -11,6 +13,7 @@ import {cors} from "./mock/corsMiddleware";
 import {HttpError} from "../lib/errors/httpError";
 
 chai.use(chaiHttp)
+chai.use(sinonChai)
 let should = chai.should();
 
 
@@ -48,7 +51,7 @@ describe("e2e", () => {
         });
 
         it('should call  with params url encoded ', async () => {
-            let app = await  createAgent({decodeUrlParams: true})
+            let app = await createAgent({decodeUrlParams: true})
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
                     res.json({query: req.query, params: req.params})
                 })
@@ -369,5 +372,37 @@ describe("e2e", () => {
         });
 
     });
+
+    describe('events', function () {
+        it('should fire events', async () => {
+
+            let spy = sinon.spy();
+
+            for (let key in Events) {
+                app.once(Events[key], spy);
+
+            }
+
+            await app
+                .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
+                    res.json({query: req.query, params: req.params})
+                })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get(`/test/params/aaa/bbb?test=${encodeURIComponent("http://www.cnn.com")}`);
+
+
+            res.should.to.have.status(200);
+            res.should.to.be.json;
+
+            await app.close();
+
+
+            spy.should.callCount(Object.keys(Events).length)
+
+
+        });
+    })
 });
 

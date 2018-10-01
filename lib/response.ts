@@ -3,6 +3,7 @@ import    zlib = require('zlib');
 import    cookie = require('cookie');
 import    _ = require('lodash');
 import {IRequest} from "./request";
+import {Events} from "./events";
 
 const statusEmpty = {
     204: true,
@@ -76,11 +77,14 @@ proto.render = function (path: string | string[], params?: any): Promise<void> {
         path = "";
     }
 
+    let paths = _.isArray(path) ? path : [path];
+
+
     if (!this.hasHeader("Content-Type")) {
         this.setHeader("Content-Type", "text/html;charset=utf-8")
     }
 
-    return this.req.app.render(path, params, this)
+    return this.req.view.render(paths, params, this)
         .then((str: string) => this.send(str))
         .catch((e) => this.req.next(e))
 };
@@ -219,6 +223,9 @@ proto.send = function (data?: string | Buffer) {
     }
 
     this.setHeader('Content-Length', Buffer.byteLength(data as string, 'utf8'));
+
+    this.req.app.fireEvent(Events.ResponseSend, this.req, this,data);
+
 
     this.req.method[0] == 'H' ? this.end() : this.end(data);
 };

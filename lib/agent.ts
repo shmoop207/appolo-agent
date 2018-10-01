@@ -8,8 +8,11 @@ import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn
 import {ErrorHandler} from "./errorHandler";
 import {Server} from "./server";
 import {handleMiddleware} from "./middleware";
+import {EventDispatcher} from "appolo-event-dispatcher";
 import {View} from "./view";
 import {IApp} from "./IApp";
+import {Events} from "./events";
+import {Defaults} from "./defaults";
 import    http = require('http');
 import    https = require('https');
 import    _ = require('lodash');
@@ -18,7 +21,7 @@ import    qs = require('qs');
 import    Q = require('bluebird');
 import    querystring = require('querystring');
 
-export class Agent implements IApp {
+export class Agent extends EventDispatcher implements IApp {
 
     private _middlewares: MiddlewareHandler[];
     private _server: http.Server | https.Server;
@@ -27,25 +30,14 @@ export class Agent implements IApp {
     private _options: IOptions;
     private _qsParse: (path: string) => any;
     private _urlParse: (path: string) => ({ query: string, pathname?: string });
-    private _requestApp: IApp
+    private _requestApp: IApp;
 
-    protected readonly Defaults: IOptions = {
-        errorStack: false,
-        errorMessage: true,
-        maxRouteCache: 10000,
-        useRouteCache: true,
-        decodeUrlParams: false,
-        qsParser: "qs",
-        urlParser: "fast",
-        viewExt: "html",
-        viewCache:true,
-        viewEngine: null,
-        viewFolder: ""
-    };
 
     public constructor(options?: IOptions) {
 
-        this._options = _.defaults(options || {}, this.Defaults);
+        super();
+
+        this._options = _.defaults(options || {}, Defaults);
 
         this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
@@ -96,6 +88,10 @@ export class Agent implements IApp {
         req.pathName = pathname;
         req.originUrl = req.url;
         req.app = this._requestApp;
+        req.view = this._view;
+
+        this._requestApp.fireEvent(Events.RequestInit, req, res);
+
     }
 
     private _initRoute = (req: IRequest, res: IResponse, next: NextFn): void => {
@@ -110,13 +106,7 @@ export class Agent implements IApp {
         req.params = route.params;
         req.route = route.handler.route;
         handleMiddleware(req, res, 0, route.handler.handlers);
-    }
-
-    public render(path: string | string[], params?: any,res?:IResponse): Promise<string> {
-        let paths = _.isArray(path) ? path : [path];
-
-        return this._view.render(paths, params,res)
-    }
+    };
 
     public get options(): IOptions {
         return this._options;
@@ -155,6 +145,8 @@ export class Agent implements IApp {
         if (method != Methods.HEAD) {
             this._router.add(Methods.HEAD, path, {handlers: dtoHandlers, route});
         }
+
+        this._requestApp.fireEvent(Events.RouteAdded, method, path, {handlers: dtoHandlers, route});
         return this;
     }
 
@@ -175,8 +167,10 @@ export class Agent implements IApp {
     public async close(): Promise<void> {
         try {
             await Q.fromCallback(c => this._server.close(c));
+            this._requestApp.fireEvent(Events.ServerClosed);
+
         } catch (e) {
-            if (e.message !=="Not running" && e.code !== "ERR_SERVER_NOT_RUNNING") {
+            if (e.message !== "Not running" && e.code !== "ERR_SERVER_NOT_RUNNING") {
                 throw e;
             }
         }
@@ -190,5 +184,17 @@ export class Agent implements IApp {
         (cb) && cb(this);
 
         return this;
+    }
+
+    public on(event: Events | string, fn: (...args: any[]) => any, scope?: any, once?: boolean): void {
+        return super.on(event.toString(), fn, scope, once)
+    }
+
+    public once(event: Events | string, fn?: (...args: any[]) => any, scope?: any): Promise<any> | void {
+        return super.once(event.toString(), fn, scope);
+    }
+
+    public decorate(fn: (req: http.IncomingMessage, res: http.ServerResponse, app: IApp) => void) {
+        fn(http.IncomingMessage.prototype, http.ServerResponse.prototype, this._requestApp.constructor.prototype)
     }
 }

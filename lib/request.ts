@@ -1,10 +1,10 @@
 import    http = require('http');
 import    _ = require('lodash');
-import {Url, parse} from "url";
 import typeis = require('type-is');
+import {parse} from "url";
 import {NextFn} from "./types";
-import {Agent} from "./agent";
 import {IApp} from "./IApp";
+import {View} from "./view";
 
 
 export interface IRequest extends http.IncomingMessage, AppRequest {
@@ -14,6 +14,7 @@ export interface IRequest extends http.IncomingMessage, AppRequest {
 interface AppRequest {
     query?: { [index: string]: any }
     app: IApp;
+    view: View;
     route: any;
     body?: { [index: string]: any }
     params?: { [index: string]: any }
