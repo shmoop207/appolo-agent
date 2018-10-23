@@ -1,6 +1,5 @@
-import {EventDispatcher} from "appolo-event-dispatcher";
+import {IEventDispatcher} from "appolo-event-dispatcher";
 
-export interface IApp extends EventDispatcher{
+export interface IApp extends IEventDispatcher{
 
-    //options: IOptions
 }

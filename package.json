@@ -24,7 +24,7 @@
     "test-cov": "nyc --reporter=text mocha"
   },
   "main": "./index.js",
-  "version": "6.0.11",
+  "version": "6.0.12",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,7 +34,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "appolo-cache": "^6.0.4",
-    "appolo-event-dispatcher": "^6.0.5",
+    "appolo-event-dispatcher": "^6.0.6",
     "appolo-route": "^6.0.2",
     "bluebird": "^3.5.2",
     "cookie": "^0.3.1",
