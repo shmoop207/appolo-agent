@@ -22,16 +22,18 @@ export class View {
 
             params = params || {};
 
+            let pathsKey = paths.toString();
+
             let item: { path: string } = null;
             if (res) {
-                item = this._cache.peek(`${res.req.url}${res.req.method}`);
+                item = this._cache.peek(pathsKey);
             }
 
             if (!item) {
-                item = await  this._findPath(paths);
+                item = await this._findPath(paths);
             }
             if (res) {
-                this._cache.set(`${res.req.url}${res.req.method}`, item);
+                this._cache.set(pathsKey, item);
             }
 
 
@@ -97,7 +99,7 @@ export class View {
     private async _isFileExist(path: string): Promise<boolean> {
 
         try {
-            let result: fs.Stats = await Q.fromCallback< fs.Stats>(c => fs.stat(path, c));
+            let result: fs.Stats = await Q.fromCallback<fs.Stats>(c => fs.stat(path, c));
             return result.isFile();
         } catch (e) {
             return false;
