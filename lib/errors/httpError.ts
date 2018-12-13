@@ -7,6 +7,10 @@ export class HttpError extends Error {
 
         this.statusCode = status;
 
+        if (error && (error as any).code) {
+            this.code = (error as any).code
+        }
+
         Object.setPrototypeOf(this, HttpError.prototype);
 
     }
