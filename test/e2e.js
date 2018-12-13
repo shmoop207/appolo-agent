@@ -272,5 +272,18 @@ describe("e2e", () => {
             spy.should.callCount(Object.keys(index_1.Events).length);
         });
     });
+    describe('errors', function () {
+        it('should throw valid errors', async () => {
+            app = index_1.createAgent();
+            await app.get("/test/error", (req, res) => {
+                throw new httpError_1.HttpError(400, "test error", new httpError_1.HttpError(500, "inner error", null, null, 999));
+            }).listen(3000);
+            let result = await request(app.handle).get("/test/error");
+            result.status.should.be.eq(400);
+            result.body.code.should.be.eq(999);
+            result.body.message.should.be.eq("test error");
+            result.body.error.should.be.eq("inner error");
+        });
+    });
 });
 //# sourceMappingURL=e2e.js.map

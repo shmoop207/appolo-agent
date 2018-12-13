@@ -49,7 +49,11 @@ export class ErrorHandler {
             }
 
             if (e.error) {
-                dto.error = e.error.toString()
+                dto.error = (e.error as Error).message || e.error.toString();
+
+                if ((e.error as HttpError).code && !dto.code) {
+                    dto.code = (e.error as HttpError).code
+                }
             }
         }
 

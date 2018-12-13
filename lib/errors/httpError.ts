@@ -7,7 +7,7 @@ export class HttpError extends Error {
 
         this.statusCode = status;
 
-        if (error && (error as any).code) {
+        if (error && (error as any).code && !this.code) {
             this.code = (error as any).code
         }
 

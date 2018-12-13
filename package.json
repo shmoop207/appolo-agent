@@ -24,7 +24,7 @@
     "test-cov": "nyc --reporter=text mocha"
   },
   "main": "./index.js",
-  "version": "6.0.12",
+  "version": "6.0.15",
   "license": "MIT",
   "repository": {
     "type": "git",
