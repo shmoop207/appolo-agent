@@ -1,5 +1,4 @@
 import    http = require('http');
-import    _ = require('lodash');
 
 export class Util {
 
@@ -16,9 +15,9 @@ export class Util {
     }
 
     public static detectIpFromHeaders(req: http.IncomingMessage): string[] {
-        let ipAddress = req.headers['x-client-ip'] || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || null;
+        let ipAddress = req.headers['x-client-ip'] as string || req.headers['x-forwarded-for'] as string || req.headers['x-real-ip'] as string || null;
 
-        return _.isArray(ipAddress) ? ipAddress : ipAddress.split(',')
+        return ipAddress ? ipAddress.split(',') : null
 
     }
 
