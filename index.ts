@@ -15,6 +15,7 @@ export {IRequest} from './lib/request';
 export {IResponse} from './lib/response';
 export {Events} from './lib/events';
 export {Methods} from 'appolo-route';
+export {IOptions} from "./lib/IOptions";
 export {MiddlewareHandlerParams, MiddlewareHandler, MiddlewareHandlerAny, NextFn} from './lib/types'
 
 export function createAgent(options?: IOptions) {

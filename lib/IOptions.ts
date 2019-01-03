@@ -11,6 +11,7 @@ export interface IOptions{
     viewFolder?: string
     viewCache?: boolean
     viewExt?: string
+    trustProxy?:boolean
     ssl?: {
         key: string
         cert: string

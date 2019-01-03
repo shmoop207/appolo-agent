@@ -20,6 +20,7 @@ import    url = require('url');
 import    qs = require('qs');
 import    Q = require('bluebird');
 import    querystring = require('querystring');
+import {IEventOptions} from "appolo-event-dispatcher/lib/IEventOptions";
 
 export class Agent extends EventDispatcher implements IApp {
 
@@ -186,8 +187,8 @@ export class Agent extends EventDispatcher implements IApp {
         return this;
     }
 
-    public on(event: Events | string, fn: (...args: any[]) => any, scope?: any, once?: boolean): void {
-        return super.on(event.toString(), fn, scope, once)
+    public on(event: Events | string, fn: (...args: any[]) => any, scope?: any, options?: IEventOptions): void {
+        return super.on(event.toString(), fn, scope, options)
     }
 
     public once(event: Events | string, fn?: (...args: any[]) => any, scope?: any): Promise<any> | void {

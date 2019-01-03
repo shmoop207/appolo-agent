@@ -5,6 +5,7 @@ import {parse} from "url";
 import {NextFn} from "./types";
 import {IApp} from "./IApp";
 import {View} from "./view";
+import {Util} from "./util";
 
 
 export interface IRequest extends http.IncomingMessage, AppRequest {
@@ -22,6 +23,7 @@ interface AppRequest {
     next?: NextFn
     pathName: string
     originUrl: string;
+    ip: string;
 
     is(types: string | string[]): boolean
 
@@ -71,6 +73,20 @@ defineGetter(proto, 'protocol', function () {
 
 defineGetter(proto, 'secure', function () {
     return this.protocol === 'https';
+});
+
+defineGetter(proto, 'ips', function () {
+    if (!this.app.options.trustProxy) {
+        return [];
+    }
+
+    return Util.detectIpFromHeaders(this) || []
+
+
+});
+
+defineGetter(proto, 'ip', function () {
+    return this.ips[0] || Util.detectIpFromConnectionOrSocket(this) || "";
 });
 
 defineGetter(proto, 'path', function () {

@@ -37,6 +37,19 @@ describe("e2e", () => {
             res.body.params.name.should.be.eq("bbb");
             res.body.params.id.should.be.eq("aaa");
         });
+        it('should call route with ip', async () => {
+            await app
+                .get("/test/params/:id/:name/", (req, res) => {
+                res.json({ query: req.query, params: req.params, ip: req.ip });
+            })
+                .listen(3000);
+            let res = await request(app.handle)
+                .get(`/test/params/aaa/bbb?test=${encodeURIComponent("http://www.cnn.com")}`).set("x-forwarded-for", "1.3.4.5,4.5.6.7");
+            res.should.to.have.status(200);
+            res.should.to.be.json;
+            should.exist(res.body);
+            res.body.ip.should.be.eq("1.3.4.5");
+        });
         it('should call  with params url encoded ', async () => {
             let app = await index_1.createAgent({ decodeUrlParams: true })
                 .get("/test/params/:id/:name/", (req, res) => {
