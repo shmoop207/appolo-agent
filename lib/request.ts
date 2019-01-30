@@ -4,7 +4,6 @@ import typeis = require('type-is');
 import {parse} from "url";
 import {NextFn} from "./types";
 import {IApp} from "./IApp";
-import {View} from "./view";
 import {Util} from "./util";
 
 
@@ -15,7 +14,6 @@ export interface IRequest extends http.IncomingMessage, AppRequest {
 interface AppRequest {
     query?: { [index: string]: any }
     app: IApp;
-    view: View;
     route: any;
     body?: { [index: string]: any }
     params?: { [index: string]: any }
@@ -24,6 +22,7 @@ interface AppRequest {
     pathName: string
     originUrl: string;
     ip: string;
+    fireEvents: boolean
 
     is(types: string | string[]): boolean
 
@@ -76,12 +75,11 @@ defineGetter(proto, 'secure', function () {
 });
 
 defineGetter(proto, 'ips', function () {
-    if (!this.app.options.trustProxy) {
+    if (!this.app || !this.app.options.trustProxy) {
         return [];
     }
 
     return Util.detectIpFromHeaders(this) || []
-
 
 });
 
@@ -123,3 +121,5 @@ export function createRequest(request: http.IncomingMessage): IRequest {
     let req = request as IRequest;
     return req;
 }
+
+export let Request = http.IncomingMessage;

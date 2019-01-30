@@ -84,7 +84,7 @@ proto.render = function (path: string | string[], params?: any): Promise<void> {
         this.setHeader("Content-Type", "text/html;charset=utf-8")
     }
 
-    return this.req.view.render(paths, params, this)
+    return this.req.app.$view.render(paths, params, this)
         .then((str: string) => this.send(str))
         .catch((e) => this.req.next(e))
 };
@@ -224,9 +224,6 @@ proto.send = function (data?: string | Buffer) {
 
     this.setHeader('Content-Length', Buffer.byteLength(data as string, 'utf8'));
 
-    this.req.app.fireEvent(Events.ResponseSend, this.req, this,data);
-
-
     this.req.method[0] == 'H' ? this.end() : this.end(data);
 };
 
@@ -251,3 +248,4 @@ export function createResponse(request: http.IncomingMessage, response: http.Ser
     return res;
 }
 
+export let Response = http.ServerResponse;

@@ -9,7 +9,7 @@ function two(req, res, next) {
     req.two = true;
     next();
 }
-index_1.createAgent().use(one).use(two)
+index_1.createAgent({ urlParser: "fast" }).use(one).use(two)
     .get('/test/', (req, res) => {
     res.send(`hello world`);
 })

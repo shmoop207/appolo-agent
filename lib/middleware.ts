@@ -10,19 +10,20 @@ export function handleMiddleware(req: IRequest, res: IResponse, num: number, mid
         return ErrorHandler.handleError(err, res);
     }
 
-    let fn = middlewares[num];
-
-    if (!fn) {
+    if(num == middlewares.length){
         return;
     }
 
-    let next = function (err) {
+    let fn = middlewares[num];
+
+
+    req.next =  function (err){
         handleMiddleware(req, res, num + 1, middlewares, err)
     };
-    req.next = next;
+
 
     try {
-        fn(req, res, next);
+        fn(req, res, req.next);
     } catch (e) {
         ErrorHandler.handleError(e, res);
     }

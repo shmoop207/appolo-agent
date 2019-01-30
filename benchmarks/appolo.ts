@@ -11,7 +11,7 @@ function two(req, res, next) {
     next();
 }
 
-createAgent().use(one).use(two)
+createAgent({urlParser:"fast"}).use(one).use(two)
     .get('/test/', (req, res) => {
         res.send(`hello world`);
     })

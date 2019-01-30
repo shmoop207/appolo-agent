@@ -1,7 +1,7 @@
 import {IOptions} from "./IOptions";
 import {Methods, Router} from 'appolo-route';
-import {createRequest, IRequest} from "./request";
-import {createResponse, IResponse} from "./response";
+import {IRequest} from "./request";
+import {IResponse} from "./response";
 import {HttpError} from "./errors/httpError";
 import {Util} from "./util";
 import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./types";
@@ -13,6 +13,7 @@ import {View} from "./view";
 import {IApp} from "./IApp";
 import {Events} from "./events";
 import {Defaults} from "./defaults";
+import {IEventOptions} from "appolo-event-dispatcher/lib/IEventOptions";
 import    http = require('http');
 import    https = require('https');
 import    _ = require('lodash');
@@ -20,7 +21,6 @@ import    url = require('url');
 import    qs = require('qs');
 import    Q = require('bluebird');
 import    querystring = require('querystring');
-import {IEventOptions} from "appolo-event-dispatcher/lib/IEventOptions";
 
 export class Agent extends EventDispatcher implements IApp {
 
@@ -31,7 +31,7 @@ export class Agent extends EventDispatcher implements IApp {
     private _options: IOptions;
     private _qsParse: (path: string) => any;
     private _urlParse: (path: string) => ({ query: string, pathname?: string });
-    private _requestApp: IApp;
+    private _requestApp: IApp & { $view?: View };
 
 
     public constructor(options?: IOptions) {
@@ -53,45 +53,55 @@ export class Agent extends EventDispatcher implements IApp {
 
         this._view = new View(this._options);
 
+
         this._server = Server.createServer(this);
 
         this._requestApp = this;
+        this._requestApp.$view = this._view;
     }
 
     private _initialize() {
+
+        if (this.options.fireRequestEvents) {
+            this._middlewares.push((req, res, next) => {
+                this._requestApp.fireEvent(Events.RequestInit, req, res);
+                next();
+            })
+        }
+
         this._middlewares.push(this._initRoute);
+
     }
 
     public set requestApp(app: IApp) {
         this._requestApp = app;
+        this._requestApp.$view = this._view;
     }
 
 
     public handle = (request: http.IncomingMessage, response: http.ServerResponse) => {
-        let req: IRequest = createRequest(request),
-            res: IResponse = createResponse(request, response);
 
         try {
-            this._initRequest(req, res);
+            this._initRequest(request as any, response  as any);
 
-            handleMiddleware(req, res, 0, this._middlewares);
+            handleMiddleware(request  as any, response  as any, 0, this._middlewares);
 
         } catch (e) {
-            ErrorHandler.handleError(e, res);
+            ErrorHandler.handleError(e, response  as any);
         }
     };
 
     private _initRequest(req: IRequest, res: IResponse): void {
 
-        let {query, pathname} = this._urlParse(req.url);
+        let $self = this;
+        let {query, pathname} = $self._urlParse(req.url);
 
-        req.query = query.length ? this._qsParse(query) : {};
+
+        res.req = req;
+        req.query = query.length ? $self._qsParse(query) : {};
         req.pathName = pathname;
         req.originUrl = req.url;
-        req.app = this._requestApp;
-        req.view = this._view;
-
-        this._requestApp.fireEvent(Events.RequestInit, req, res);
+        req.app = $self._requestApp;
 
     }
 

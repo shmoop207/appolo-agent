@@ -12,6 +12,7 @@ export interface IOptions{
     viewCache?: boolean
     viewExt?: string
     trustProxy?:boolean
+    fireRequestEvents?:boolean
     ssl?: {
         key: string
         cert: string

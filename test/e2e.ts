@@ -416,6 +416,8 @@ describe("e2e", () => {
     describe('events', function () {
         it('should fire events', async () => {
 
+            app = createAgent({fireRequestEvents:true});
+
             let spy = sinon.spy();
 
             for (let key in Events) {
@@ -439,7 +441,7 @@ describe("e2e", () => {
             await app.close();
 
 
-            spy.should.callCount(Object.keys(Events).length)
+            spy.should.callCount(Object.keys(Events).length-1)
 
 
         });

@@ -281,6 +281,7 @@ describe("e2e", () => {
     });
     describe('events', function () {
         it('should fire events', async () => {
+            app = index_1.createAgent({ fireRequestEvents: true });
             let spy = sinon.spy();
             for (let key in index_1.Events) {
                 app.once(index_1.Events[key], spy);
@@ -295,7 +296,7 @@ describe("e2e", () => {
             res.should.to.have.status(200);
             res.should.to.be.json;
             await app.close();
-            spy.should.callCount(Object.keys(index_1.Events).length);
+            spy.should.callCount(Object.keys(index_1.Events).length - 1);
         });
     });
     describe('errors', function () {
