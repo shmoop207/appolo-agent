@@ -53,12 +53,12 @@ describe("e2e", () => {
         it('should call route with ip x-forwarded-for', async () => {
             await app
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
-                    res.json({query: req.query, params: req.params,ip:req.ip})
+                    res.json({query: req.query, params: req.params, ip: req.ip})
                 })
                 .listen(3000);
 
             let res = await request(app.handle)
-                .get(`/test/params/aaa/bbb?test=${encodeURIComponent("http://www.cnn.com")}`).set("x-forwarded-for","1.3.4.5,4.5.6.7");
+                .get(`/test/params/aaa/bbb?test=${encodeURIComponent("http://www.cnn.com")}`).set("x-forwarded-for", "1.3.4.5,4.5.6.7");
 
 
             res.should.to.have.status(200);
@@ -73,7 +73,7 @@ describe("e2e", () => {
         it('should call route with ip x-forwarded-for', async () => {
             await app
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
-                    res.json({query: req.query, params: req.params,ip:req.ip})
+                    res.json({query: req.query, params: req.params, ip: req.ip})
                 })
                 .listen(3000);
 
@@ -337,6 +337,19 @@ describe("e2e", () => {
             res.body.test.should.be.eq(1)
         });
 
+        it('should  call not found http Error', async () => {
+
+            await app.get("aa/bb")
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/test/');
+
+            res.should.to.have.status(404);
+
+            res.text.should.be.eq("{\"statusCode\":404,\"message\":\"Cannot GET /test/\"}")
+        });
+
         it('should call controller Head', async () => {
 
             await app
@@ -416,7 +429,7 @@ describe("e2e", () => {
     describe('events', function () {
         it('should fire events', async () => {
 
-            app = createAgent({fireRequestEvents:true});
+            app = createAgent({fireRequestEvents: true});
 
             let spy = sinon.spy();
 
@@ -441,7 +454,7 @@ describe("e2e", () => {
             await app.close();
 
 
-            spy.should.callCount(Object.keys(Events).length-1)
+            spy.should.callCount(Object.keys(Events).length - 1)
 
 
         });
@@ -465,6 +478,63 @@ describe("e2e", () => {
 
 
         });
+
+
+        it('should throw custom valid errors', async () => {
+
+            app = createAgent();
+
+            app.use(function (err, req, res, next) {
+                res.status(500);
+                res.send('error')
+            })
+
+            app.get("/test/error", (req: IRequest, res: IResponse) => {
+                throw new HttpError(400, "test error")
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/error");
+
+            result.status.should.be.eq(500);
+            result.text.should.be.eq("error");
+
+        });
+
+        it('should throw custom not found', async () => {
+
+            app = createAgent();
+
+            app.use(function (err, req, res, next) {
+                if (err.statusCode == 404){
+                    res.statusCode = 404;
+                    res.send('error 404')
+                    return;
+                }
+
+                next(err);
+
+            });
+
+            app.get("/test/error", (req: IRequest, res: IResponse) => {
+                throw new HttpError(400, "test error")
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/error2");
+
+            result.status.should.be.eq(404);
+            result.text.should.be.eq("error 404");
+
+            let result2 = await request(app.handle).get("/test/error");
+
+            result2.status.should.be.eq(400);
+            result2.text.should.be.eq("{\"statusCode\":400,\"message\":\"test error\"}");
+
+        });
+
     })
 
 

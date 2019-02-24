@@ -3,7 +3,6 @@ import    zlib = require('zlib');
 import    cookie = require('cookie');
 import    _ = require('lodash');
 import {IRequest} from "./request";
-import {Events} from "./events";
 
 const statusEmpty = {
     204: true,
@@ -86,7 +85,10 @@ proto.render = function (path: string | string[], params?: any): Promise<void> {
 
     return this.req.app.$view.render(paths, params, this)
         .then((str: string) => this.send(str))
-        .catch((e) => this.req.next(e))
+        .catch((e) => {
+            this.sending = false;
+            this.req.next(e)
+        })
 };
 
 proto.set = proto.header = function (field: string | { [index: string]: string }, value?: number | string | string[]): IResponse {

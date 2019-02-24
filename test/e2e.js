@@ -227,6 +227,14 @@ describe("e2e", () => {
             res.should.to.have.status(404);
             res.body.test.should.be.eq(1);
         });
+        it('should  call not found http Error', async () => {
+            await app.get("aa/bb")
+                .listen(3000);
+            let res = await request(app.handle)
+                .get('/test/');
+            res.should.to.have.status(404);
+            res.text.should.be.eq("{\"statusCode\":404,\"message\":\"Cannot GET /test/\"}");
+        });
         it('should call controller Head', async () => {
             await app
                 .use(corsMiddleware_1.cors)
@@ -310,6 +318,41 @@ describe("e2e", () => {
             result.body.code.should.be.eq(999);
             result.body.message.should.be.eq("test error");
             result.body.error.should.be.eq("inner error");
+        });
+        it('should throw custom valid errors', async () => {
+            app = index_1.createAgent();
+            app.use(function (err, req, res, next) {
+                res.status(500);
+                res.send('error');
+            });
+            app.get("/test/error", (req, res) => {
+                throw new httpError_1.HttpError(400, "test error");
+            });
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/error");
+            result.status.should.be.eq(500);
+            result.text.should.be.eq("error");
+        });
+        it('should throw custom not found', async () => {
+            app = index_1.createAgent();
+            app.use(function (err, req, res, next) {
+                if (err.statusCode == 404) {
+                    res.statusCode = 404;
+                    res.send('error 404');
+                    return;
+                }
+                next(err);
+            });
+            app.get("/test/error", (req, res) => {
+                throw new httpError_1.HttpError(400, "test error");
+            });
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/error2");
+            result.status.should.be.eq(404);
+            result.text.should.be.eq("error 404");
+            let result2 = await request(app.handle).get("/test/error");
+            result2.status.should.be.eq(400);
+            result2.text.should.be.eq("{\"statusCode\":400,\"message\":\"test error\"}");
         });
     });
 });

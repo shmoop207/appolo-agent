@@ -1,22 +1,12 @@
 import {IResponse} from "./response";
 import {HttpError} from "./errors/httpError";
+import {NextFn} from "./types";
+import {IRequest} from "./request";
 import _ = require("lodash");
 
 export class ErrorHandler {
-    public static handleError(e: Error | HttpError, res: IResponse) {
 
-        let err: HttpError = e as HttpError || new HttpError(500);
-
-        res.statusCode = ErrorHandler.getStatusCode(err);
-
-        //let options = res.req.app.options;
-
-        let msg = ErrorHandler.getErrorMessage(err, res.statusCode);
-
-        res.json(msg);
-    }
-
-    private static getStatusCode(err: HttpError): number {
+    public static getStatusCode(err: HttpError): number {
 
         if ((err.status >= 400 && err.status < 600)) {
             return err.status
@@ -29,7 +19,7 @@ export class ErrorHandler {
         return 500;
     }
 
-    private static getErrorMessage(e: Error | HttpError, statusCode: number): { message: string, statusCode: number, code?: number, error?: string } {
+    public static getErrorMessage(e: Error | HttpError, statusCode: number): { message: string, statusCode: number, code?: number, error?: string } {
 
         let dto: { message: string, statusCode: number, code?: number, error?: string } = {
             statusCode: statusCode,
