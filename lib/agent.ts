@@ -38,6 +38,7 @@ export class Agent extends EventDispatcher implements IApp {
     private _urlParse: (path: string) => ({ query: string, pathname?: string });
     private _requestApp: IApp & { $view?: View };
     private _routes: Map<string, IRouteHandler>;
+    private _isInitialized: boolean = false;
 
 
     public constructor(options?: IOptions) {
@@ -70,6 +71,10 @@ export class Agent extends EventDispatcher implements IApp {
 
     private _initialize() {
 
+        if (this._isInitialized) {
+            return;
+        }
+
         if (this.options.fireRequestEvents) {
             this._middlewares.push(fireEventMiddleware)
         }
@@ -79,9 +84,15 @@ export class Agent extends EventDispatcher implements IApp {
         this._middlewaresNotFound = [...this._middlewares, notFoundMiddleware];
 
         for (let handler of this._routes.values()) {
-            handler.middlewares = [...this._middlewares, ...handler.middlewares];
-            handler.errors = [...handler.errors, ...this._middlewaresError];
+            this._initializeHandler(handler);
         }
+
+        this._isInitialized = true;
+    }
+
+    private _initializeHandler(handler: IRouteHandler) {
+        handler.middlewares = [...this._middlewares, ...handler.middlewares];
+        handler.errors = [...handler.errors, ...this._middlewaresError];
     }
 
     public set requestApp(app: IApp) {
@@ -177,6 +188,10 @@ export class Agent extends EventDispatcher implements IApp {
 
         this._router.add(method, path, dto);
         this._routes.set(`${method}#${path}`, dto);
+
+        if (this._isInitialized) {
+            this._initializeHandler(dto);
+        }
 
         return dto;
     }
