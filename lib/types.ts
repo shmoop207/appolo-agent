@@ -12,7 +12,6 @@ export type MiddlewareHandlerAnyError = ((e: any, req: any, res: any, next: any)
 
 export type MiddlewareHandlerErrorOrAny = MiddlewareHandlerError | MiddlewareHandlerAnyError
 
-export type NextFn = (err?: Error) => void
 
 export type MiddlewareHandlerParams = MiddlewareHandlerOrAny | MiddlewareHandlerErrorOrAny
 
@@ -23,4 +22,9 @@ export interface IRouteHandler {
     middlewares: MiddlewareHandlerOrAny[]
     errors: MiddlewareHandlerErrorOrAny[]
     route: any
+}
+
+export interface NextFn {
+    (err?: Error) : void
+    run?:boolean
 }

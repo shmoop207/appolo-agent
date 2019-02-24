@@ -52,9 +52,9 @@ export function handleMiddlewareError(req: IRequest, res: IResponse, num: number
 
 
     try {
-        fn(err, req, res, req.next);
+        fn(err, req, res, next);
     } catch (e) {
-        req.next(e);
+        next(e);
     }
 
 }
