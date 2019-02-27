@@ -212,7 +212,8 @@ export class Agent extends EventDispatcher implements IApp {
     }
 
     error(...fn: MiddlewareHandlerErrorOrAny[]): this {
-        return this.use(...fn)
+        this._middlewaresError.push(...fn);
+        return this
     }
 
     public get server(): http.Server | https.Server {
