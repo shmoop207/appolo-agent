@@ -27,4 +27,5 @@ export interface IRouteHandler {
 export interface NextFn {
     (err?: Error) : void
     run?:boolean
+    index?:number
 }

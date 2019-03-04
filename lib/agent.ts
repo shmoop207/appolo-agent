@@ -115,7 +115,7 @@ export class Agent extends EventDispatcher implements IApp {
             let route = this._router.find(req.method as Methods, req.pathName);
 
             if (!route) {
-                handleMiddleware(req, res, 0, this._middlewaresNotFound, this._middlewaresError);
+                handleMiddleware(req, res, this._middlewaresNotFound, this._middlewaresError);
                 return;
             }
 
@@ -124,10 +124,10 @@ export class Agent extends EventDispatcher implements IApp {
             req.params = route.params;
             req.route = handler.route;
 
-            handleMiddleware(req, res, 0, handler.middlewares, handler.errors);
+            handleMiddleware(req, res, handler.middlewares, handler.errors);
 
         } catch (e) {
-            handleMiddlewareError(req, res, 0, this._middlewaresError, e);
+            handleMiddlewareError(req, res, this._middlewaresError, e);
         }
     };
 

@@ -34,6 +34,7 @@ interface AppRequest {
     hostname: string
     secure: boolean
     pathname: boolean
+    fullUrl: string
 
 }
 
@@ -90,6 +91,11 @@ defineGetter(proto, 'ip', function () {
 defineGetter(proto, 'path', function () {
     return parse(this.url).pathname;
 });
+
+defineGetter(proto, 'fullUrl', function () {
+    return `${this.protocol}://${this.hostname}${this.url}`
+});
+
 
 defineGetter(proto, 'hostname', function () {
 

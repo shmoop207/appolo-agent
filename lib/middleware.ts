@@ -6,10 +6,10 @@ import {ErrorHandler} from "./errorHandler";
 import {Events} from "./events";
 
 
-export function handleMiddleware(req: IRequest, res: IResponse, num: number, middlewares: MiddlewareHandler[], errorsMiddleware: MiddlewareHandlerError[], err?: Error) {
+export function handleMiddleware(req: IRequest, res: IResponse, middlewares: MiddlewareHandler[], errorsMiddleware: MiddlewareHandlerError[], num: number = 0, err?: Error) {
 
     if (err) {
-        return handleMiddlewareError(req, res, 0, errorsMiddleware, err);
+        return handleMiddlewareError(req, res, errorsMiddleware, err);
     }
 
     if (num == middlewares.length) {
@@ -18,24 +18,17 @@ export function handleMiddleware(req: IRequest, res: IResponse, num: number, mid
 
     let fn = middlewares[num];
 
-    let next: any = req.next = function (err) {
-        if (!next.run) {
-            next.run = true;
-            handleMiddleware(req, res, num + 1, middlewares, errorsMiddleware, err)
-        }
-    };
-
+    let next: any = req.next = handleMiddleware.bind(null, req, res, middlewares, errorsMiddleware, num + 1);
 
     try {
         fn(req, res, next);
     } catch (e) {
-        handleMiddlewareError(req, res, 0, errorsMiddleware, e);
+        next(e)
     }
 
 }
 
-export function handleMiddlewareError(req: IRequest, res: IResponse, num: number, middlewares: MiddlewareHandlerError[], err: Error) {
-
+export function handleMiddlewareError(req: IRequest, res: IResponse, middlewares: MiddlewareHandlerError[], err: Error, num: number = 0) {
 
     if (num == middlewares.length) {
         return;
@@ -43,13 +36,7 @@ export function handleMiddlewareError(req: IRequest, res: IResponse, num: number
 
     let fn = middlewares[num];
 
-    let next: any = req.next = function (err) {
-        if (!next.run) {
-            next.run = true;
-            handleMiddlewareError(req, res, num + 1, middlewares, err)
-        }
-    };
-
+    let next: any = req.next = handleMiddlewareError.bind(null, req, res, middlewares, err, num + 1);
 
     try {
         fn(err, req, res, next);
@@ -72,8 +59,6 @@ export function errorMiddleware(e: Error | HttpError, req: IRequest, res: IRespo
     let err: HttpError = e as HttpError || new HttpError(500);
 
     res.statusCode = ErrorHandler.getStatusCode(err);
-
-    //let options = res.req.app.options;
 
     let msg = ErrorHandler.getErrorMessage(err, res.statusCode);
 
