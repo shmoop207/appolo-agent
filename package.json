@@ -24,7 +24,7 @@
     "test-cov": "nyc --reporter=text mocha"
   },
   "main": "./index.js",
-  "version": "6.0.23",
+  "version": "6.0.24",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
   "dependencies": {
     "appolo-cache": "^6.0.6",
     "appolo-event-dispatcher": "^6.0.8",
-    "appolo-route": "^6.0.2",
+    "appolo-route": "^6.0.3",
     "bluebird": "^3.5.3",
     "cookie": "^0.3.1",
     "lodash": "^4.17.11",
