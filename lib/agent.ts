@@ -139,36 +139,36 @@ export class Agent extends EventDispatcher implements IApp {
         this._requestApp.$view = this._view;
     }
 
-    public addHookOnSend(hook: MiddlewareHandlerData): this {
+    public hookOnSend(...hook: MiddlewareHandlerData[]): this {
         return this._addHook(Hooks.OnSend, hook)
     }
 
-    public addHookOnError(hook: MiddlewareHandlerError): this {
+    public hookOnError(...hook: MiddlewareHandlerError[]): this {
         return this._addHook(Hooks.OnError, hook)
     }
 
-    public addHookOnResponse(hook: MiddlewareHandler): this {
+    public hookOnResponse(...hook: MiddlewareHandler[]): this {
         return this._addHook(Hooks.OnResponse, hook)
     }
 
-    public addHookOnRequest(hook: MiddlewareHandler): this {
+    public hookOnRequest(...hook: MiddlewareHandler[]): this {
         return this._addHook(Hooks.OnRequest, hook)
     }
 
-    public addHookPreHandler(hook: MiddlewareHandler): this {
+    public hookPreHandler(...hook: MiddlewareHandler[]): this {
         return this._addHook(Hooks.PreHandler, hook)
     }
 
-    public addPreMiddlewareHook(hook: MiddlewareHandler): this {
+    public preMiddlewareHook(...hook: MiddlewareHandler[]): this {
         return this._addHook(Hooks.PreMiddleware, hook)
     }
 
-    private _addHook(name: Hooks, hook: IHook): this {
+    private _addHook(name: Hooks, hook: IHook[]): this {
         if (!this._hooks[name]) {
             this._hooks[name] = [];
         }
 
-        this._hooks[name].push(hook);
+        this._hooks[name].push(...hook);
 
         return this
     }
