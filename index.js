@@ -21,6 +21,8 @@ var events_1 = require("./lib/events");
 exports.Events = events_1.Events;
 var appolo_route_1 = require("appolo-route");
 exports.Methods = appolo_route_1.Methods;
+var types_1 = require("./lib/types");
+exports.Hooks = types_1.Hooks;
 function createAgent(options) {
     return new agent_1.Agent(options);
 }
