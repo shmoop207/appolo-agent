@@ -2,7 +2,14 @@ import {IOptions} from "./IOptions";
 import {Methods, Router} from 'appolo-route';
 import {IRequest} from "./request";
 import {Util} from "./util";
-import {IRouteHandler, MiddlewareHandlerErrorOrAny, MiddlewareHandlerOrAny, MiddlewareHandlerParams} from "./types";
+import {
+    Hooks,
+    IHook, IHooks,
+    IRouteHandler, MiddlewareHandlerData, MiddlewareHandler, MiddlewareHandlerError,
+    MiddlewareHandlerErrorOrAny,
+    MiddlewareHandlerOrAny,
+    MiddlewareHandlerParams
+} from "./types";
 import {Server} from "./server";
 import {
     errorMiddleware,
@@ -24,12 +31,21 @@ import    url = require('url');
 import    qs = require('qs');
 import    Q = require('bluebird');
 import    querystring = require('querystring');
+import {sendMiddleware} from "./response";
 
 export class Agent extends EventDispatcher implements IApp {
 
     private _middlewares: MiddlewareHandlerOrAny[];
     private _middlewaresNotFound: MiddlewareHandlerOrAny[];
     private _middlewaresError: MiddlewareHandlerErrorOrAny[];
+    private _hooks: IHooks = {
+        preHandler: [],
+        preMiddleware: [],
+        onResponse: [],
+        onRequest: [],
+        onError: [],
+        onSend: []
+    };
     private _server: http.Server | https.Server;
     private _router: Router;
     private _view: View;
@@ -91,13 +107,70 @@ export class Agent extends EventDispatcher implements IApp {
     }
 
     private _initializeHandler(handler: IRouteHandler) {
-        handler.middlewares = [...this._middlewares, ...handler.middlewares];
-        handler.errors = [...handler.errors, ...this._middlewaresError];
+
+        _.forEach(this._hooks, (hook, hookName) =>
+            handler.hooks[hookName] = [...hook, ...(handler.hooks[hookName] || [])]);
+
+        if (handler.hooks.onSend.length) {
+            handler.hooks.onSend.push(function (data, req, res, next) {
+                res.send(data)
+            });
+        }
+
+        handler.middlewares = [
+            ...handler.hooks.onRequest as MiddlewareHandlerOrAny[],
+            ...this._middlewares,
+            ...handler.hooks.preMiddleware as MiddlewareHandlerOrAny[],
+            ...handler.middlewares.slice(0, -1),
+            ...handler.hooks.preHandler as MiddlewareHandlerOrAny[],
+            handler.middlewares[handler.middlewares.length - 1]
+        ];
+        handler.errors = [
+            ...handler.hooks.onError,
+            ...handler.errors,
+            ...this._middlewaresError];
+
+        handler.hasResponseHook = !!handler.hooks.onResponse.length;
+        handler.hasSendHook = !!handler.hooks.onSend.length
     }
 
     public set requestApp(app: IApp) {
         this._requestApp = app;
         this._requestApp.$view = this._view;
+    }
+
+    public addHookOnSend(hook: MiddlewareHandlerData): this {
+        return this._addHook(Hooks.OnSend, hook)
+    }
+
+    public addHookOnError(hook: MiddlewareHandlerError): this {
+        return this._addHook(Hooks.OnError, hook)
+    }
+
+    public addHookOnResponse(hook: MiddlewareHandler): this {
+        return this._addHook(Hooks.OnResponse, hook)
+    }
+
+    public addHookOnRequest(hook: MiddlewareHandler): this {
+        return this._addHook(Hooks.OnRequest, hook)
+    }
+
+    public addHookPreHandler(hook: MiddlewareHandler): this {
+        return this._addHook(Hooks.PreHandler, hook)
+    }
+
+    public addPreMiddlewareHook(hook: MiddlewareHandler): this {
+        return this._addHook(Hooks.PreMiddleware, hook)
+    }
+
+    private _addHook(name: Hooks, hook: IHook): this {
+        if (!this._hooks[name]) {
+            this._hooks[name] = [];
+        }
+
+        this._hooks[name].push(hook);
+
+        return this
     }
 
     public handle = (request: http.IncomingMessage, response: http.ServerResponse) => {
@@ -120,6 +193,16 @@ export class Agent extends EventDispatcher implements IApp {
             }
 
             let handler: IRouteHandler = route.handler;
+
+            if (handler.hasSendHook) {
+                res.send = sendMiddleware.bind(res, handler.hooks.onSend, this._middlewaresError)
+            }
+
+            if (handler.hasResponseHook) {
+                response.once("finish", function () {
+                    handleMiddleware(req, res, handler.hooks.onResponse, []);
+                })
+            }
 
             req.params = route.params;
             req.route = handler.route;
@@ -160,7 +243,7 @@ export class Agent extends EventDispatcher implements IApp {
         return this.add(Methods.HEAD, path, handler);
     }
 
-    public add(method: keyof typeof Methods, path: string, handlers: MiddlewareHandlerParams[], route?: any): this {
+    public add(method: keyof typeof Methods, path: string, handlers: MiddlewareHandlerParams[], route?: any, hooks?: IHooks): this {
 
         handlers = _(handlers).map(handler => _.isArray(handler) ? handler : [handler]).flatten().value();
 
@@ -169,22 +252,30 @@ export class Agent extends EventDispatcher implements IApp {
         let middlewares = result[0] as MiddlewareHandlerOrAny[];
         let errors = result[1] as MiddlewareHandlerErrorOrAny[];
 
-        let dto = this._addRouteToRouter(method, path, middlewares, errors, route);
+        let dto = this._addRouteToRouter(method, path, middlewares, errors, route, hooks);
 
         if (method != Methods.HEAD) {
-            this._addRouteToRouter(Methods.HEAD, path, middlewares.slice(), errors.slice(), route);
+            this._addRouteToRouter(Methods.HEAD, path, middlewares.slice(), errors.slice(), route, hooks);
         }
 
         if (method != Methods.OPTIONS) {
-            this._addRouteToRouter(Methods.OPTIONS, path, middlewares.slice(0, -1), errors.slice(), route);
+            this._addRouteToRouter(Methods.OPTIONS, path, middlewares.slice(0, -1), errors.slice(), route, hooks);
         }
 
         this._requestApp.fireEvent(Events.RouteAdded, method, path, dto);
         return this;
     }
 
-    private _addRouteToRouter(method: keyof typeof Methods, path: string, middlewares: MiddlewareHandlerOrAny[], errors: MiddlewareHandlerErrorOrAny[], route: any): IRouteHandler {
-        let dto: IRouteHandler = {middlewares, errors, route, method, path};
+    private _addRouteToRouter(method: keyof typeof Methods, path: string, middlewares: MiddlewareHandlerOrAny[], errors: MiddlewareHandlerErrorOrAny[], route: any, hooks: IHooks): IRouteHandler {
+
+        let dto: IRouteHandler = {
+            middlewares,
+            errors,
+            route,
+            method,
+            path,
+            hooks: hooks || {}
+        };
 
         this._router.add(method, path, dto);
         this._routes.set(`${method}#${path}`, dto);

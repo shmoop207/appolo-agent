@@ -3,6 +3,7 @@ import    zlib = require('zlib');
 import    cookie = require('cookie');
 import    _ = require('lodash');
 import {IRequest} from "./request";
+import {handleMiddleware} from "./middleware";
 
 const statusEmpty = {
     204: true,
@@ -37,7 +38,7 @@ interface IAppResponse {
 
     render(params?: any): Promise<void>
 
-    send(data?: string | Buffer)
+    send(data?: string | Buffer | any)
 
     gzip(): IResponse
 
@@ -194,7 +195,7 @@ proto.jsonp = function (data: any) {
     this.send(body);
 };
 
-proto.send = function (data?: string | Buffer) {
+function send(data?: string | Buffer | any) {
 
     this.sending = true;
 
@@ -227,7 +228,14 @@ proto.send = function (data?: string | Buffer) {
     this.setHeader('Content-Length', Buffer.byteLength(data as string, 'utf8'));
 
     this.req.method[0] == 'H' ? this.end() : this.end(data);
-};
+}
+
+export function sendMiddleware(middlewares, middlewaresError, data?: string | Buffer) {
+    this.send = send.bind(this);
+    handleMiddleware(this.req, this, middlewares, middlewaresError, 0, null, data);
+}
+
+proto.send = send;
 
 
 function gzipResponse(res: IResponse, data: any) {

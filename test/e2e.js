@@ -13,6 +13,9 @@ const httpError_1 = require("../lib/errors/httpError");
 chai.use(chaiHttp);
 chai.use(sinonChai);
 let should = chai.should();
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
 describe("e2e", () => {
     let app;
     beforeEach(() => {
@@ -353,6 +356,64 @@ describe("e2e", () => {
             let result2 = await request(app.handle).get("/test/error");
             result2.status.should.be.eq(400);
             result2.text.should.be.eq("{\"statusCode\":400,\"message\":\"test error\"}");
+        });
+    });
+    describe('hooks', function () {
+        it('should handle send hook', async () => {
+            app = index_1.createAgent();
+            app.get("/test/send", (req, res) => {
+                res.send({ a: "bb" });
+            });
+            app.addHookOnSend(function (data, req, res, next) {
+                data.a = "aaa";
+                next(null, data);
+            });
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/send");
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aaa");
+        });
+        it('should handle on response hook', async () => {
+            app = index_1.createAgent();
+            app.get("/test/send", (req, res) => {
+                res.send({ a: "bb" });
+            });
+            let spy = sinon.spy();
+            app.addHookOnResponse(spy);
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/send");
+            spy.should.have.been.calledOnce;
+        });
+        it('should handle pre middleware  hook', async () => {
+            app = index_1.createAgent();
+            app.get("/test/send", (req, res) => {
+                res.send(Object.assign({ a: "aa" }, req.model));
+            });
+            let spy = sinon.spy();
+            app.addPreMiddlewareHook(function (req, res, next) {
+                req.model = { b: "bb" };
+                next();
+            });
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/send");
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aa");
+            result.body.b.should.be.eq("bb");
+        });
+        it('should handle on request  hook', async () => {
+            app = index_1.createAgent();
+            app.get("/test/send", (req, res) => {
+                res.send(Object.assign({ a: "aa" }, req.model));
+            });
+            app.addHookOnRequest(function (req, res, next) {
+                req.model = { b: "bb" };
+                next();
+            });
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/send");
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aa");
+            result.body.b.should.be.eq("bb");
         });
     });
 });

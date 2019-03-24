@@ -3,6 +3,7 @@ import {IRequest} from "./request";
 import {Methods} from "appolo-route/index";
 
 export type MiddlewareHandler = ((req: IRequest, res: IResponse, next: NextFn) => void)
+export type MiddlewareHandlerData = ((data:any, req: IRequest, res: IResponse, next: NextFn) => void)
 export type MiddlewareHandlerAny = ((req: any, res: any, next: any) => void)
 
 export type MiddlewareHandlerOrAny = MiddlewareHandler | MiddlewareHandlerAny;
@@ -21,11 +22,30 @@ export interface IRouteHandler {
     method: keyof typeof Methods
     middlewares: MiddlewareHandlerOrAny[]
     errors: MiddlewareHandlerErrorOrAny[]
-    route: any
+    route: any,
+    hooks: IHooks
+    hasSendHook?:boolean
+    hasResponseHook?:boolean
 }
 
 export interface NextFn {
-    (err?: Error) : void
-    run?:boolean
-    index?:number
+    (err?: Error,data?:any): void
+
+    run?: boolean
+    index?: number
 }
+
+export enum Hooks {
+    "OnRequest" = "onRequest",
+    "PreMiddleware" = "preMiddleware",
+    "PreHandler" = "preHandler",
+    "OnError" = "onError",
+    "OnSend" = "onSend",
+    "OnResponse" = "onResponse"
+}
+
+export type IHook = MiddlewareHandlerOrAny | MiddlewareHandlerErrorOrAny
+
+export type IHooks = { [K in Hooks]?: IHook[] };
+
+

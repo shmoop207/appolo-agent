@@ -1,12 +1,12 @@
 import {IResponse} from "./response";
 import {IRequest} from "./request";
-import {MiddlewareHandler, MiddlewareHandlerError, NextFn} from "./types";
+import {MiddlewareHandlerData, MiddlewareHandler, MiddlewareHandlerError, NextFn} from "./types";
 import {HttpError} from "./errors/httpError";
 import {ErrorHandler} from "./errorHandler";
 import {Events} from "./events";
 
 
-export function handleMiddleware(req: IRequest, res: IResponse, middlewares: MiddlewareHandler[], errorsMiddleware: MiddlewareHandlerError[], num: number = 0, err?: Error) {
+export function handleMiddleware(req: IRequest, res: IResponse, middlewares: (MiddlewareHandler | MiddlewareHandlerData)[], errorsMiddleware: MiddlewareHandlerError[], num: number = 0, err?: Error, data?: any) {
 
     if (err) {
         return handleMiddlewareError(req, res, errorsMiddleware, err);
@@ -21,7 +21,7 @@ export function handleMiddleware(req: IRequest, res: IResponse, middlewares: Mid
     let next: any = req.next = handleMiddleware.bind(null, req, res, middlewares, errorsMiddleware, num + 1);
 
     try {
-        fn(req, res, next);
+        data ? (fn as MiddlewareHandlerData)(data, req, res, next) : (fn as MiddlewareHandler)(req, res, next);
     } catch (e) {
         next(e)
     }

@@ -12,9 +12,13 @@ import {Agent} from "../lib/agent";
 import {cors} from "./mock/corsMiddleware";
 import {HttpError} from "../lib/errors/httpError";
 
-chai.use(chaiHttp)
-chai.use(sinonChai)
+chai.use(chaiHttp);
+chai.use(sinonChai);
 let should = chai.should();
+
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time))
+}
 
 
 describe("e2e", () => {
@@ -507,7 +511,7 @@ describe("e2e", () => {
             app = createAgent();
 
             app.use(function (err, req, res, next) {
-                if (err.statusCode == 404){
+                if (err.statusCode == 404) {
                     res.statusCode = 404;
                     res.send('error 404')
                     return;
@@ -535,6 +539,99 @@ describe("e2e", () => {
 
         });
 
+    })
+
+    describe('hooks', function () {
+        it('should handle send hook', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "bb"})
+            });
+
+            app.addHookOnSend(function (data, req, res, next) {
+                data.a = "aaa";
+                next(null, data)
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send");
+
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aaa");
+
+
+        });
+
+        it('should handle on response hook', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "bb"})
+            });
+
+            let spy = sinon.spy();
+
+            app.addHookOnResponse(spy);
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send");
+
+            spy.should.have.been.calledOnce
+
+        });
+
+        it('should handle pre middleware  hook', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "aa",...req.model})
+            });
+
+            let spy = sinon.spy();
+
+            app.addPreMiddlewareHook(function (req, res, next) {
+                req.model = {b:"bb"};
+                next();
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send");
+
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aa");
+            result.body.b.should.be.eq("bb");
+
+        });
+
+        it('should handle on request  hook', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "aa",...req.model})
+            });
+
+            app.addHookOnRequest(function (req, res, next) {
+                req.model = {b:"bb"};
+                next();
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send");
+
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aa");
+            result.body.b.should.be.eq("bb");
+
+        });
     })
 
 
