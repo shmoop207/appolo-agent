@@ -139,9 +139,6 @@ export class Agent extends EventDispatcher implements IApp {
     public addHook(name: Hooks.OnResponse | Hooks.PreMiddleware | Hooks.PreHandler | Hooks.OnRequest, ...hook: MiddlewareHandler[]): this
     public addHook(name: Hooks.OnSend, ...hook: MiddlewareHandlerData[]): this
     public addHook(name: Hooks, ...hook: IHook[]): this {
-        if (!this._hooks[name]) {
-            this._hooks[name] = [];
-        }
 
         this._hooks[name].push(...hook);
 
