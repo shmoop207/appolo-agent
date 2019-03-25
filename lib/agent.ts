@@ -38,14 +38,8 @@ export class Agent extends EventDispatcher implements IApp {
     private _middlewares: MiddlewareHandlerOrAny[];
     private _middlewaresNotFound: MiddlewareHandlerOrAny[];
     private _middlewaresError: MiddlewareHandlerErrorOrAny[];
-    private _hooks: IHooks = {
-        preHandler: [],
-        preMiddleware: [],
-        onResponse: [],
-        onRequest: [],
-        onError: [],
-        onSend: []
-    };
+    private _hooks: IHooks = {};
+
     private _server: http.Server | https.Server;
     private _router: Router;
     private _view: View;
@@ -75,6 +69,8 @@ export class Agent extends EventDispatcher implements IApp {
             maxCacheSize: this._options.maxRouteCache,
             decodeUrlParams: this._options.decodeUrlParams
         });
+
+        _.forEach(Hooks, hook => this._hooks[hook] = []);
 
         this._view = new View(this._options);
 
@@ -139,31 +135,10 @@ export class Agent extends EventDispatcher implements IApp {
         this._requestApp.$view = this._view;
     }
 
-    public hookOnSend(...hook: MiddlewareHandlerData[]): this {
-        return this._addHook(Hooks.OnSend, hook)
-    }
-
-    public hookOnError(...hook: MiddlewareHandlerError[]): this {
-        return this._addHook(Hooks.OnError, hook)
-    }
-
-    public hookOnResponse(...hook: MiddlewareHandler[]): this {
-        return this._addHook(Hooks.OnResponse, hook)
-    }
-
-    public hookOnRequest(...hook: MiddlewareHandler[]): this {
-        return this._addHook(Hooks.OnRequest, hook)
-    }
-
-    public hookPreHandler(...hook: MiddlewareHandler[]): this {
-        return this._addHook(Hooks.PreHandler, hook)
-    }
-
-    public preMiddlewareHook(...hook: MiddlewareHandler[]): this {
-        return this._addHook(Hooks.PreMiddleware, hook)
-    }
-
-    private _addHook(name: Hooks, hook: IHook[]): this {
+    public addHook(name: Hooks.OnError, ...hook: MiddlewareHandlerError[]): this
+    public addHook(name: Hooks.OnResponse | Hooks.PreMiddleware | Hooks.PreHandler | Hooks.OnRequest, ...hook: MiddlewareHandler[]): this
+    public addHook(name: Hooks.OnSend, ...hook: MiddlewareHandlerData[]): this
+    public addHook(name: Hooks, ...hook: IHook[]): this {
         if (!this._hooks[name]) {
             this._hooks[name] = [];
         }

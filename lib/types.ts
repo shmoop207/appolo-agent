@@ -44,7 +44,7 @@ export enum Hooks {
     "OnResponse" = "onResponse"
 }
 
-export type IHook = MiddlewareHandlerOrAny | MiddlewareHandlerErrorOrAny
+export type IHook = MiddlewareHandler | MiddlewareHandlerData | MiddlewareHandlerError
 
 export type IHooks = { [K in Hooks]?: IHook[] };
 

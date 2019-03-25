@@ -364,7 +364,7 @@ describe("e2e", () => {
             app.get("/test/send", (req, res) => {
                 res.send({ a: "bb" });
             });
-            app.addHookOnSend(function (data, req, res, next) {
+            app.addHook(index_1.Hooks.OnSend, function (data, req, res, next) {
                 data.a = "aaa";
                 next(null, data);
             });
@@ -379,7 +379,7 @@ describe("e2e", () => {
                 res.send({ a: "bb" });
             });
             let spy = sinon.spy();
-            app.addHookOnResponse(spy);
+            app.addHook(index_1.Hooks.OnResponse, spy);
             await app.listen(3000);
             let result = await request(app.handle).get("/test/send");
             spy.should.have.been.calledOnce;
@@ -390,7 +390,7 @@ describe("e2e", () => {
                 res.send(Object.assign({ a: "aa" }, req.model));
             });
             let spy = sinon.spy();
-            app.addPreMiddlewareHook(function (req, res, next) {
+            app.addHook(index_1.Hooks.PreMiddleware, function (req, res, next) {
                 req.model = { b: "bb" };
                 next();
             });
@@ -405,7 +405,7 @@ describe("e2e", () => {
             app.get("/test/send", (req, res) => {
                 res.send(Object.assign({ a: "aa" }, req.model));
             });
-            app.addHookOnRequest(function (req, res, next) {
+            app.addHook(index_1.Hooks.OnRequest, function (req, res, next) {
                 req.model = { b: "bb" };
                 next();
             });
