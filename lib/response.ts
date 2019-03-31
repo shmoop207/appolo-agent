@@ -10,6 +10,9 @@ const statusEmpty = {
     205: true,
     304: true
 };
+const emptyMethods = {
+    HEAD: true,
+};
 
 
 export interface IResponse extends http.ServerResponse, IAppResponse {
@@ -19,7 +22,6 @@ export interface IResponse extends http.ServerResponse, IAppResponse {
 
 interface IAppResponse {
     req: IRequest
-    useGzip: boolean;
     sending: boolean
 
     status(code: number): IResponse
@@ -171,7 +173,32 @@ proto.append = function (field: string, value: string): IResponse {
 
 
 proto.gzip = function () {
-    this.useGzip = true;
+
+    let old = this.send, $self = this;
+
+    this.send = function (data) {
+
+        if (!data) {
+            old.call($self, data);
+            return;
+        }
+
+        this.sending = true;
+
+        data = checkHeaders.call(this, data);
+
+
+        zlib.gzip(data, (err, gziped) => {
+            if (err) {
+                old.call($self, data);
+                return;
+            }
+
+            $self.setHeader('Content-Encoding', "gzip");
+            old.call($self, gziped);
+        });
+    };
+
     return this;
 };
 
@@ -195,6 +222,20 @@ proto.jsonp = function (data: any) {
     this.send(body);
 };
 
+function checkHeaders(data: string | Buffer | any) {
+    if (!this.hasHeader("Content-Type")) {
+        if (typeof data === 'string' || this.getHeader("Content-Encoding") == "gzip") {
+            this.setHeader("Content-Type", "text/plain;charset=utf-8");
+        } else if (Buffer.isBuffer(data)) {
+            this.setHeader("Content-Type", "application/octet-stream");
+        } else {
+            data = JSON.stringify(data);
+            this.setHeader("Content-Type", "application/json; charset=utf-8");
+        }
+    }
+    return data;
+}
+
 function send(data?: string | Buffer | any) {
 
     this.sending = true;
@@ -208,26 +249,11 @@ function send(data?: string | Buffer | any) {
         return
     }
 
-    if (!this.hasHeader("Content-Type")) {
-        if (typeof data === 'string' || this.getHeader("Content-Encoding") == "gzip") {
-            this.setHeader("Content-Type", "text/plain;charset=utf-8");
-        } else if (Buffer.isBuffer(data)) {
-            this.setHeader("Content-Type", "application/octet-stream");
-        } else {
-            data = JSON.stringify(data);
-            this.setHeader("Content-Type", "application/json; charset=utf-8");
-        }
-    }
-
-    //check if need to gzip
-    if (this.useGzip && data) {
-        gzipResponse(this, data);
-        return;
-    }
+    data = checkHeaders.call(this, data);
 
     this.setHeader('Content-Length', Buffer.byteLength(data as string, 'utf8'));
 
-    this.req.method[0] == 'H' ? this.end() : this.end(data);
+    this.end(data);
 }
 
 export function sendMiddleware(middlewares, middlewaresError, data?: string | Buffer) {
@@ -236,21 +262,6 @@ export function sendMiddleware(middlewares, middlewaresError, data?: string | Bu
 }
 
 proto.send = send;
-
-
-function gzipResponse(res: IResponse, data: any) {
-    zlib.gzip(data, (err, gziped) => {
-        res.useGzip = false;
-
-        if (err) {
-            res.send(data);
-            return;
-        }
-
-        res.setHeader('Content-Encoding', "gzip");
-        res.send(gziped)
-    });
-}
 
 export function createResponse(request: http.IncomingMessage, response: http.ServerResponse): IResponse {
     let res = response as IResponse;
