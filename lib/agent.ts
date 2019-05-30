@@ -215,6 +215,17 @@ export class Agent extends EventDispatcher implements IApp {
         return this.add(Methods.HEAD, path, handler);
     }
 
+    public all(path: string, ...handler: MiddlewareHandlerParams[]): this {
+        this.add(Methods.GET, path, handler)
+            .add(Methods.PATCH, path, handler)
+            .add(Methods.POST, path, handler)
+            .add(Methods.PUT, path, handler)
+            .add(Methods.DELETE, path, handler)
+            .add(Methods.HEAD, path, handler)
+
+        return this;
+    }
+
     public add(method: keyof typeof Methods, path: string, handlers: MiddlewareHandlerParams[], route?: any, hooks?: IHooks): this {
 
         handlers = _(handlers).map(handler => _.isArray(handler) ? handler : [handler]).flatten().value();
@@ -259,7 +270,13 @@ export class Agent extends EventDispatcher implements IApp {
         return dto;
     }
 
-    public use(...fn: MiddlewareHandlerParams[]): this {
+    public use(path: string | MiddlewareHandlerParams, ...fn: MiddlewareHandlerParams[]): this {
+
+        if (typeof path === "string") {
+            return this.all(path, ...fn)
+        } else {
+            fn.unshift(path)
+        }
 
         let result = _.partition(fn, handler => handler.length <= 3);
 

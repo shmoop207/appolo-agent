@@ -220,6 +220,15 @@ describe("e2e", () => {
             res.should.to.have.status(500);
             res.text.should.be.eq('{"statusCode":500,"message":"Error: test error"}');
         });
+        it('should  call use with path', async () => {
+            await app.use("/test/test", function (req, res, next) {
+                res.send("aaa");
+            }).listen(3000);
+            let res = await request(app.handle)
+                .get('/test/test');
+            res.should.to.have.status(200);
+            res.text.should.be.eq('aaa');
+        });
         it('should  call  Middleware http Error', async () => {
             await app.use(function (req, res, next) {
                 next(new httpError_1.HttpError(404, "test", null, { test: 1 }));

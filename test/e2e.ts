@@ -325,6 +325,21 @@ describe("e2e", () => {
             res.text.should.be.eq('{"statusCode":500,"message":"Error: test error"}')
         });
 
+        it('should  call use with path', async () => {
+
+            await app.use("/test/test", function (req, res, next) {
+                res.send("aaa")
+            }).listen(3000);
+
+            let res = await request(app.handle)
+                .get('/test/test');
+
+            res.should.to.have.status(200);
+
+
+            res.text.should.be.eq('aaa')
+        });
+
         it('should  call  Middleware http Error', async () => {
 
             await app.use(function (req, res, next) {
@@ -575,7 +590,7 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.addHook(Hooks.OnResponse,spy);
+            app.addHook(Hooks.OnResponse, spy);
 
             await app.listen(3000);
 
@@ -595,7 +610,7 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.addHook(Hooks.PreMiddleware,function (req, res, next) {
+            app.addHook(Hooks.PreMiddleware, function (req, res, next) {
                 req.model = {b: "bb"};
                 next();
             });
@@ -618,7 +633,7 @@ describe("e2e", () => {
                 res.send({a: "aa", ...req.model})
             });
 
-            app.addHook(Hooks.OnRequest,function (req, res, next) {
+            app.addHook(Hooks.OnRequest, function (req, res, next) {
                 req.model = {b: "bb"};
                 next();
             });
