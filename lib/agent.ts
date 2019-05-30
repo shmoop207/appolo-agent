@@ -270,7 +270,7 @@ export class Agent extends EventDispatcher implements IApp {
         return dto;
     }
 
-    public use(path: string | MiddlewareHandlerParams, ...fn: MiddlewareHandlerParams[]): this {
+    public use(path?: string | MiddlewareHandlerParams, ...fn: MiddlewareHandlerParams[]): this {
 
         if (typeof path === "string") {
             return this.all(path, ...fn)

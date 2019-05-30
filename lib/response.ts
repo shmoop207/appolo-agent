@@ -2,6 +2,7 @@ import    http = require('http');
 import    zlib = require('zlib');
 import    cookie = require('cookie');
 import    _ = require('lodash');
+import    mime = require('mime');
 import {IRequest} from "./request";
 import {handleMiddleware} from "./middleware";
 
@@ -200,6 +201,14 @@ proto.gzip = function () {
     };
 
     return this;
+};
+
+proto.contentType = proto.type = function contentType(type: string) {
+    let ct = type.indexOf('/') === -1
+        ? mime.getType(type)
+        : type;
+
+    return this.set('Content-Type', ct);
 };
 
 proto.jsonp = function (data: any) {
