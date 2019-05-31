@@ -46,6 +46,7 @@ proto.is = function (types: string | string[]) {
     return typeis.apply(typeis, [this].concat(_.toArray(arguments)));
 };
 
+
 proto.get = proto.header = function (name: string) {
 
     let nameLower = name.toLowerCase();
@@ -74,6 +75,11 @@ defineGetter(proto, 'protocol', function () {
 defineGetter(proto, 'secure', function () {
     return this.protocol === 'https';
 });
+
+defineGetter(proto, 'originalUrl', function () {
+    return this.url;
+});
+
 
 defineGetter(proto, 'ips', function () {
     if (!this.app || !this.app.options.trustProxy) {

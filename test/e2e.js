@@ -82,6 +82,21 @@ describe("e2e", () => {
             await app.close();
         });
     });
+    describe('middalwares', function () {
+        it("should add middlwrare to exists route", async function () {
+            app.use("/test/params/:id/:name/", (req, res, next) => {
+                req.query["test"] = "aa";
+                next();
+            })
+                .get("/test/params/:id/:name/", (req, res) => {
+                res.json({ query: req.query });
+            })
+                .listen(3000);
+            let res = await request(app.handle)
+                .get(`/test/params/aaa/bbb}`);
+            res.body.query.test.should.be.eq("aa");
+        });
+    });
     describe('json', function () {
         it('should call route with json', async () => {
             await app

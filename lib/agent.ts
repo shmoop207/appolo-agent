@@ -260,8 +260,20 @@ export class Agent extends EventDispatcher implements IApp {
             hooks: hooks || {}
         };
 
-        this._router.add(method, path, dto);
-        this._routes.set(`${method}#${path}`, dto);
+        let routeKey = `${method}#${path}`;
+
+        let routeHandler = this._routes.get(routeKey);
+
+        if(routeHandler){
+            routeHandler.errors.push(...errors);
+            routeHandler.middlewares.push(...middlewares);
+        } else {
+            this._router.add(method, path, dto);
+            this._routes.set(routeKey, dto);
+        }
+
+
+
 
         if (this._isInitialized) {
             this._initializeHandler(dto);
