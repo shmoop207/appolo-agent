@@ -1,8 +1,5 @@
-import {IResponse} from "./response";
 import {HttpError} from "./errors/httpError";
-import {NextFn} from "./types";
-import {IRequest} from "./request";
-import _ = require("lodash");
+import {Objects} from "appolo-utils";
 
 export class ErrorHandler {
 
@@ -28,8 +25,8 @@ export class ErrorHandler {
 
         if (e instanceof HttpError) {
 
-            if (_.isPlainObject(e.data)) {
-                _.extend(dto, e.data)
+            if (Objects.isPlain(e.data)) {
+                Object.assign(dto, e.data)
             }
 
             dto.message = e.message;

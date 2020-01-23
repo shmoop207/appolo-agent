@@ -1,5 +1,4 @@
 import    http = require('http');
-import    _ = require('lodash');
 import typeis = require('type-is');
 import {parse} from "url";
 import {NextFn} from "./types";
@@ -43,7 +42,7 @@ let proto = (http.IncomingMessage.prototype as any);
 
 proto.is = function (types: string | string[]) {
 
-    return typeis.apply(typeis, [this].concat(_.toArray(arguments)));
+    return typeis.apply(typeis, [this].concat(Array.from(arguments)));
 };
 
 
@@ -124,7 +123,10 @@ function defineGetter(obj, name, getter) {
     Object.defineProperty(obj, name, {
         configurable: true,
         enumerable: true,
-        get: getter
+        get: getter,
+        set:function (value) {
+            this[name] = value
+        }
     });
 }
 

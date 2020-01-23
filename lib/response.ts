@@ -1,10 +1,11 @@
 import    http = require('http');
 import    zlib = require('zlib');
 import    cookie = require('cookie');
-import    _ = require('lodash');
 import    mime = require('mime');
 import {IRequest} from "./request";
+import {Objects,Arrays} from "appolo-utils";
 import {handleMiddleware} from "./middleware";
+import {Util} from "./util";
 
 const statusEmpty = {
     204: true,
@@ -80,7 +81,7 @@ proto.render = function (path: string | string[], params?: any): Promise<void> {
         path = "";
     }
 
-    let paths = _.isArray(path) ? path : [path];
+    let paths = Array.isArray(path) ? path : [path];
 
 
     if (!this.hasHeader("Content-Type")) {
@@ -120,7 +121,7 @@ proto.cache = function (seconds: number) {
 proto.cookie = function (name: string, value: any, options?: cookie.CookieSerializeOptions): IResponse {
     let opts: cookie.CookieSerializeOptions = options || {};
 
-    let val: string = _.isObject(value) ? 'j:' + JSON.stringify(value) : String(value);
+    let val: string = Objects.isPlain(value)|| Array.isArray(value)  ? 'j:' + JSON.stringify(value) : String(value);
 
     if ('maxAge' in opts) {
         opts.expires = new Date(Date.now() + opts.maxAge);
@@ -165,9 +166,9 @@ proto.append = function (field: string, value: string): IResponse {
     if (!current) {
         return this.setHeader(field, value)
     }
-    let val: string[] = _.isArray(current)
+    let val: string[] = Array.isArray(current)
         ? current.concat(value)
-        : (_.isArray(value) ? [current].concat(value) : [current, value]);
+        : (Array.isArray(value) ? [current].concat(value) : [current, value]);
 
     return this.setHeader(field, val);
 };

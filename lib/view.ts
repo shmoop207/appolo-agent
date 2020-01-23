@@ -2,9 +2,9 @@ import {Cache} from "appolo-cache";
 import {IOptions} from "./IOptions";
 import {HttpError} from "./errors/httpError";
 import {IResponse} from "./response";
+import {Util} from "appolo-utils";
 import fs = require("fs");
 import path = require("path");
-import Q = require("bluebird");
 
 export class View {
 
@@ -99,7 +99,7 @@ export class View {
     private async _isFileExist(path: string): Promise<boolean> {
 
         try {
-            let result: fs.Stats = await Q.fromCallback<fs.Stats>(c => fs.stat(path, c));
+            let result: fs.Stats = await Util.promises.fromCallback<fs.Stats>(c => fs.stat(path, c));
             return result.isFile();
         } catch (e) {
             return false;

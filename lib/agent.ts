@@ -1,6 +1,7 @@
 import {IOptions} from "./IOptions";
 import {Methods, Router} from 'appolo-route';
 import {IRequest} from "./request";
+import {Arrays, Enums, Promises} from "appolo-utils";
 import {Util} from "./util";
 import {
     Hooks,
@@ -26,10 +27,8 @@ import {Defaults} from "./defaults";
 import {IEventOptions} from "appolo-event-dispatcher/lib/IEventOptions";
 import    http = require('http');
 import    https = require('https');
-import    _ = require('lodash');
 import    url = require('url');
 import    qs = require('qs');
-import    Q = require('bluebird');
 import    querystring = require('querystring');
 import {sendMiddleware} from "./response";
 
@@ -55,7 +54,7 @@ export class Agent extends EventDispatcher implements IApp {
 
         super();
 
-        this._options = _.defaults(options || {}, Defaults);
+        this._options = Object.assign({}, Defaults, options);
 
         this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
@@ -70,7 +69,7 @@ export class Agent extends EventDispatcher implements IApp {
             decodeUrlParams: this._options.decodeUrlParams
         });
 
-        _.forEach(Hooks, hook => this._hooks[hook] = []);
+        Enums.enumValues<Hooks>(Hooks).forEach(hook => this._hooks[hook] = []);
 
         this._view = new View(this._options);
 
@@ -104,8 +103,8 @@ export class Agent extends EventDispatcher implements IApp {
 
     private _initializeHandler(handler: IRouteHandler) {
 
-        _.forEach(this._hooks, (hook, hookName) =>
-            handler.hooks[hookName] = [...hook, ...(handler.hooks[hookName] || [])]);
+        Object.keys(this._hooks).forEach(hookName =>
+            handler.hooks[hookName] = [...this._hooks[hookName], ...(handler.hooks[hookName] || [])]);
 
         if (handler.hooks.onSend.length) {
             handler.hooks.onSend.push(function (data, req, res, next) {
@@ -221,16 +220,16 @@ export class Agent extends EventDispatcher implements IApp {
             .add(Methods.POST, path, handler)
             .add(Methods.PUT, path, handler)
             .add(Methods.DELETE, path, handler)
-            .add(Methods.HEAD, path, handler)
+            .add(Methods.HEAD, path, handler);
 
         return this;
     }
 
     public add(method: keyof typeof Methods, path: string, handlers: MiddlewareHandlerParams[], route?: any, hooks?: IHooks): this {
 
-        handlers = _(handlers).map(handler => _.isArray(handler) ? handler : [handler]).flatten().value();
+        handlers = Arrays.flat<MiddlewareHandlerParams>(handlers.map(handler => Array.isArray(handler) ? handler : [handler]));
 
-        let result = _.partition(handlers, handler => handler.length <= 3);
+        let result = Arrays.partition(handlers, handler => handler.length <= 3);
 
         let middlewares = result[0] as MiddlewareHandlerOrAny[];
         let errors = result[1] as MiddlewareHandlerErrorOrAny[];
@@ -264,15 +263,13 @@ export class Agent extends EventDispatcher implements IApp {
 
         let routeHandler = this._routes.get(routeKey);
 
-        if(routeHandler){
+        if (routeHandler) {
             routeHandler.errors.push(...errors);
             routeHandler.middlewares.push(...middlewares);
         } else {
             this._router.add(method, path, dto);
             this._routes.set(routeKey, dto);
         }
-
-
 
 
         if (this._isInitialized) {
@@ -290,7 +287,7 @@ export class Agent extends EventDispatcher implements IApp {
             fn.unshift(path)
         }
 
-        let result = _.partition(fn, handler => handler.length <= 3);
+        let result = Arrays.partition(fn, handler => handler.length <= 3);
 
         if (result[0].length) {
             this._middlewares.push(...result[0] as MiddlewareHandlerOrAny[]);
@@ -318,7 +315,7 @@ export class Agent extends EventDispatcher implements IApp {
 
     public async close(): Promise<void> {
         try {
-            await Q.fromCallback(c => this._server.close(c));
+            await Promises.fromCallback(c => this._server.close(c));
             this._requestApp.fireEvent(Events.ServerClosed);
 
         } catch (e) {
@@ -331,7 +328,7 @@ export class Agent extends EventDispatcher implements IApp {
     public async listen(port: number, cb?: Function): Promise<Agent> {
         this._initialize();
 
-        await Q.fromCallback(c => this._server.listen(port, c));
+        await Promises.fromCallback(c => this._server.listen(port, c as any));
 
         (cb) && cb(this);
 
