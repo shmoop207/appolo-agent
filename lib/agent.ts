@@ -54,7 +54,7 @@ export class Agent extends EventDispatcher implements IApp {
 
         super();
 
-        this._options = Object.assign({}, Defaults, options);
+        this._options = Object.assign(options, Defaults, options);
 
         this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
