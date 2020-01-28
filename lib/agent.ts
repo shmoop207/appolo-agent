@@ -1,7 +1,7 @@
 import {IOptions} from "./IOptions";
 import {Methods, Router} from 'appolo-route';
 import {IRequest} from "./request";
-import {Arrays, Enums, Promises} from "appolo-utils";
+import {Arrays, Enums, Promises,Objects} from "appolo-utils";
 import {Util} from "./util";
 import {
     Hooks,
@@ -54,7 +54,7 @@ export class Agent extends EventDispatcher implements IApp {
 
         super();
 
-        this._options = Object.assign(options, Defaults, options);
+        this._options = Objects.defaults(options || {}, Defaults);
 
         this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
