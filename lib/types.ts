@@ -1,6 +1,6 @@
 import {IResponse} from "./response";
 import {IRequest} from "./request";
-import {Methods} from "appolo-route/index";
+import {Methods} from "@appolo/router";
 
 export type MiddlewareHandler = ((req: IRequest, res: IResponse, next: NextFn) => void)
 export type MiddlewareHandlerData = ((data:any, req: IRequest, res: IResponse, next: NextFn) => void)

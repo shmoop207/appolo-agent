@@ -1,7 +1,7 @@
 import {IOptions} from "./IOptions";
-import {Methods, Router} from 'appolo-route';
+import {Methods, Router} from '@appolo/router';
 import {IRequest} from "./request";
-import {Arrays, Enums, Promises,Objects} from "appolo-utils";
+import {Arrays, Enums, Promises,Objects} from "@appolo/utils";
 import {Util} from "./util";
 import {
     Hooks,
@@ -19,12 +19,10 @@ import {
     handleMiddlewareError,
     notFoundMiddleware
 } from "./middleware";
-import {EventDispatcher} from "appolo-event-dispatcher";
-import {View} from "./view";
+import {EventDispatcher,IEventOptions} from "@appolo/events";
 import {IApp} from "./IApp";
 import {Events} from "./events";
 import {Defaults} from "./defaults";
-import {IEventOptions} from "appolo-event-dispatcher/lib/IEventOptions";
 import    http = require('http');
 import    https = require('https');
 import    url = require('url');
@@ -41,11 +39,10 @@ export class Agent extends EventDispatcher implements IApp {
 
     private _server: http.Server | https.Server;
     private _router: Router;
-    private _view: View;
     private _options: IOptions;
     private _qsParse: (path: string) => any;
     private _urlParse: (path: string) => ({ query: string, pathname?: string });
-    private _requestApp: IApp & { $view?: View };
+    private _requestApp: IApp;
     private _routes: Map<string, IRouteHandler>;
     private _isInitialized: boolean = false;
 
@@ -71,13 +68,9 @@ export class Agent extends EventDispatcher implements IApp {
 
         Enums.enumValues<Hooks>(Hooks).forEach(hook => this._hooks[hook] = []);
 
-        this._view = new View(this._options);
-
-
         this._server = Server.createServer(this);
 
         this._requestApp = this;
-        this._requestApp.$view = this._view;
     }
 
     private _initialize() {
@@ -131,7 +124,6 @@ export class Agent extends EventDispatcher implements IApp {
 
     public set requestApp(app: IApp) {
         this._requestApp = app;
-        this._requestApp.$view = this._view;
     }
 
     public addHook(name: Hooks.OnError, ...hook: MiddlewareHandlerError[]): this

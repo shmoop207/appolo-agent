@@ -1,4 +1,5 @@
-let fastify   =require('fastify')
+let Fastify   =require('fastify')
+
 
 
 function one(req, res, next) {
@@ -11,12 +12,20 @@ function two(req, res, next) {
     next();
 }
 
-fastify().use(one).use(two)
-    .get('/test/', (req, res) => {
+async function build () {
+    const fastify = Fastify()
+    await fastify.register(require('middie'))
+    
+    return fastify.use(one).use(two).get('/test/', (req, res) => {
         res.send(`hello world`);
     })
-    .listen(3000,()=>{
-        console.log("running fastify")
+}
 
-    });
+build()
+    .then(fastify => fastify.listen(3000,()=>{
+        console.log("running fastify")
+        
+    }))
+    .catch(console.log)
+
 

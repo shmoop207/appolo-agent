@@ -1,9 +1,9 @@
 import    http = require('http');
-import typeis = require('type-is');
 import {parse} from "url";
 import {NextFn} from "./types";
 import {IApp} from "./IApp";
 import {Util} from "./util";
+import {Typeis} from "./typeis";
 
 
 export interface IRequest extends http.IncomingMessage, AppRequest {
@@ -40,9 +40,9 @@ interface AppRequest {
 let proto = (http.IncomingMessage.prototype as any);
 
 
-proto.is = function (types: string | string[]) {
+proto.is = function (...types: (string | string[])[]) {
 
-    return typeis.apply(typeis, [this].concat(Array.from(arguments)));
+    return Typeis.isType(this.headers['content-type'], ...types);
 };
 
 
@@ -124,7 +124,7 @@ function defineGetter(obj, name, getter) {
         configurable: true,
         enumerable: true,
         get: getter,
-        set:function (value) {
+        set: function (value) {
             this[name] = value
         }
     });

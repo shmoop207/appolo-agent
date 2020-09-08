@@ -1,11 +1,11 @@
 import    http = require('http');
 import    zlib = require('zlib');
-import    cookie = require('cookie');
 import    mime = require('mime');
 import {IRequest} from "./request";
-import {Objects,Arrays} from "appolo-utils";
+import {Objects,Arrays} from "@appolo/utils";
 import {handleMiddleware} from "./middleware";
 import {Util} from "./util";
+import {Cookie, CookieSerializeOptions} from "./cookie";
 
 const statusEmpty = {
     204: true,
@@ -48,9 +48,9 @@ interface IAppResponse {
 
     cache(seconds: number): IResponse
 
-    cookie(key: string, value: any, options?: cookie.CookieSerializeOptions): IResponse
+    cookie(key: string, value: any, options?: CookieSerializeOptions): IResponse
 
-    clearCookie(key: string, options?: cookie.CookieSerializeOptions): IResponse
+    clearCookie(key: string, options?: CookieSerializeOptions): IResponse
 
     redirect(path: string): void
 }
@@ -72,29 +72,29 @@ proto.json = function (obj: any) {
     this.send(JSON.stringify(obj))
 };
 
-proto.render = function (path: string | string[], params?: any): Promise<void> {
-
-    this.sending = true;
-
-    if (arguments.length == 1 && typeof path !== "string") {
-        params = path;
-        path = "";
-    }
-
-    let paths = Array.isArray(path) ? path : [path];
-
-
-    if (!this.hasHeader("Content-Type")) {
-        this.setHeader("Content-Type", "text/html;charset=utf-8")
-    }
-
-    return this.req.app.$view.render(paths, params, this)
-        .then((str: string) => this.send(str))
-        .catch((e) => {
-            this.sending = false;
-            this.req.next(e)
-        })
-};
+// proto.render = function (this:IResponse,path: string | string[], params?: any): Promise<void> {
+//
+//     this.sending = true;
+//
+//     if (arguments.length == 1 && typeof path !== "string") {
+//         params = path;
+//         path = "";
+//     }
+//
+//     let paths = Array.isArray(path) ? path : [path];
+//
+//
+//     if (!this.hasHeader("Content-Type")) {
+//         this.setHeader("Content-Type", "text/html;charset=utf-8")
+//     }
+//
+//     return this.req.app.$view.render(paths, params, this)
+//         .then((str: string) => this.send(str))
+//         .catch((e) => {
+//             this.sending = false;
+//             this.req.next(e)
+//         })
+// };
 
 proto.set = proto.header = function (field: string | { [index: string]: string }, value?: number | string | string[]): IResponse {
 
@@ -118,8 +118,8 @@ proto.cache = function (seconds: number) {
     return this;
 };
 
-proto.cookie = function (name: string, value: any, options?: cookie.CookieSerializeOptions): IResponse {
-    let opts: cookie.CookieSerializeOptions = options || {};
+proto.cookie = function (name: string, value: any, options?: CookieSerializeOptions): IResponse {
+    let opts: CookieSerializeOptions = options || {};
 
     let val: string = Objects.isPlain(value)|| Array.isArray(value)  ? 'j:' + JSON.stringify(value) : String(value);
 
@@ -132,13 +132,13 @@ proto.cookie = function (name: string, value: any, options?: cookie.CookieSerial
         opts.path = '/';
     }
 
-    this.append('Set-Cookie', cookie.serialize(name, val, opts));
+    this.append('Set-Cookie', Cookie.serialize(name, val, opts));
 
     return this;
 };
 
-proto.clearCookie = function (name: string, options?: cookie.CookieSerializeOptions): IResponse {
-    let opts: cookie.CookieSerializeOptions = options || {};
+proto.clearCookie = function (name: string, options?: CookieSerializeOptions): IResponse {
+    let opts: CookieSerializeOptions = options || {};
     opts.expires = new Date(1);
     opts.path = '/';
 

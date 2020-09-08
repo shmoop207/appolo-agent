@@ -3,6 +3,7 @@ import {Agent} from "./lib/agent";
 import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./lib/types";
 import {NotFoundError} from "./lib/errors/notFoundError";
 import {UnauthorizedError} from "./lib/errors/unauthorizedError";
+import {CookieSerializeOptions} from "./lib/cookie";
 
 export {Agent} from './lib/agent';
 export {IApp} from './lib/IApp';
@@ -14,8 +15,9 @@ export {NotFoundError} from './lib/errors/notFoundError';
 export {IRequest, Request} from './lib/request';
 export {IResponse, Response} from './lib/response';
 export {Events} from './lib/events';
-export {Methods} from 'appolo-route';
+export {Methods} from '@appolo/router';
 export {IOptions} from "./lib/IOptions";
+export {CookieSerializeOptions} from "./lib/cookie";
 export {
     MiddlewareHandlerParams,
     MiddlewareHandler,

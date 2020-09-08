@@ -284,33 +284,6 @@ describe("e2e", () => {
 
     });
 
-    describe('should render view', () => {
-        it("should render view", async () => {
-            app = await createAgent({
-                viewEngine: consolidate.nunjucks, viewFolder: "test/mock"
-            }).listen(3000);
-
-
-            app.get("/test/view", (req: IRequest, res: IResponse) => {
-                res.render("raw", {test: "working"})
-            })
-
-            let res = await request(app.handle)
-                .get('/test/view/')
-
-            res = await request(app.handle)
-                .get('/test/view/')
-
-            res.should.to.have.status(200);
-
-            res.should.to.be.html;
-            res.text.should.be.ok;
-            res.text.should.be.eq("hello working");
-
-        })
-
-
-    });
 
     describe('should call route with methods options head', function () {
         it('should  call  Options', async () => {

@@ -1,5 +1,5 @@
 import {HttpError} from "./errors/httpError";
-import {Objects} from "appolo-utils";
+import {Objects} from "@appolo/utils";
 
 export class ErrorHandler {
 
