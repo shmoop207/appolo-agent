@@ -17,6 +17,11 @@ let child: ChildProcess, instance;
             console.log("running fastify");
 
             break;
+        case "tinyhttp":
+            child = exec('node ./benchmarks/tinyhttp.js');
+            console.log("running tinyhttp");
+
+            break;
         default:
             console.log("running appolo");
 

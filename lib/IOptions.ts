@@ -5,7 +5,7 @@ export interface IOptions{
     maxRouteCache?: number,
     useRouteCache?:boolean,
     decodeUrlParams?:boolean,
-    qsParser?: "qs" | "querystring"
+    qsParser?: (query:string)=>{[index:string]:any}
     urlParser?: "url" | "fast"
     trustProxy?:boolean
     fireRequestEvents?:boolean

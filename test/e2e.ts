@@ -118,11 +118,11 @@ describe("e2e", () => {
     });
 
     describe('middalwares', function () {
-        it("should add middlwrare to exists route",async function () {
-            app.use("/test/params/:id/:name/", (req: IRequest, res: IResponse,next) => {
-                    req.query["test"] = "aa";
-                    next();
-                })
+        it("should add middlwrare to exists route", async function () {
+            app.use("/test/params/:id/:name/", (req: IRequest, res: IResponse, next) => {
+                req.query["test"] = "aa";
+                next();
+            })
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
                     res.json({query: req.query})
                 })
@@ -284,6 +284,62 @@ describe("e2e", () => {
 
     });
 
+    describe('should call async middleware', function () {
+        it('should  async  middleware resolve', async () => {
+
+            await app.use(async (req, res, next) => {
+
+            }).use((req, res, next) => {
+                res.send("ok")
+            })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/');
+
+            res.should.to.have.status(200);
+            res.text.should.be.eq('ok')
+        });
+
+        it('should  async  middleware resolve and next', async () => {
+
+            await app.use(async (req, res, next) => {
+                next();
+            }).use(async (req, res, next) => {
+
+            }).use((req, res, next) => {
+                res.send("ok")
+            })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/');
+
+            res.should.to.have.status(200);
+            res.text.should.be.eq('ok')
+        });
+
+        it('should  async  middleware resolve and error', async () => {
+
+            await app.use(async (req, res, next) => {
+                next();
+            }).use(async (req, res, next) => {
+                await new Promise(resolve => setTimeout(resolve, 1));
+
+                throw new HttpError(500, "async error")
+            }).use((req, res, next) => {
+                res.send("ok")
+            })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/');
+
+            res.should.to.have.status(500);
+            res.body.message.should.be.eq('async error')
+        });
+    })
+
 
     describe('should call route with methods options head', function () {
         it('should  call  Options', async () => {
@@ -314,8 +370,25 @@ describe("e2e", () => {
             res.should.to.have.status(500);
 
 
-            res.text.should.be.eq('{"statusCode":500,"message":"Error: test error"}')
+            res.text.should.be.eq('{"statusCode":500,"message":"Internal Server Error","error":"test error"}')
         });
+
+        it('should  call  Middleware error with stack', async () => {
+            app = createAgent({errorStack:true})
+            await app.use(function (req, res, next) {
+                next(new Error("test error"))
+            })
+                .listen(3000);
+
+            let res = await request(app.handle)
+                .get('/test/params/aaa/bbb/?user_name=11');
+
+            res.should.to.have.status(500);
+
+
+            res.body.error.should.include('Error: test error')
+        });
+
 
         it('should  call use with path', async () => {
 

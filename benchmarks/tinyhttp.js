@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = require("../index");
+const app_1 = require("@tinyhttp/app");
 function one(req, res, next) {
     req.one = true;
     next();
@@ -9,11 +9,13 @@ function two(req, res, next) {
     req.two = true;
     next();
 }
-index_1.createAgent({}).use(one).use(two)
+let app = new app_1.App();
+app.use(one, two)
     .get('/test/', (req, res) => {
-    res.send(`hello world`);
+    res.end(`hello world`);
 })
     .listen(3000, () => {
-    console.log("running agent");
+    console.log("running tiny http");
 });
-//# sourceMappingURL=appolo.js.map
+;
+//# sourceMappingURL=tinyhttp.js.map

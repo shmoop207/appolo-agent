@@ -1,5 +1,4 @@
-import {createAgent} from "../index"
-
+import { App } from '@tinyhttp/app'
 
 function one(req, res, next) {
     req.one = true;
@@ -11,12 +10,13 @@ function two(req, res, next) {
     next();
 }
 
-createAgent({}).use(one).use(two)
+let app = new App()
+
+app.use(one, two)
     .get('/test/', (req, res) => {
-        res.send(`hello world`);
+        res.end(`hello world`);
     })
-    .listen(3000, () => {
-        console.log("running agent");
+    .listen(3000,()=>{
+        console.log("running tiny http")
 
     });
-

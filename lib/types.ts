@@ -2,14 +2,14 @@ import {IResponse} from "./response";
 import {IRequest} from "./request";
 import {Methods} from "@appolo/router";
 
-export type MiddlewareHandler = ((req: IRequest, res: IResponse, next: NextFn) => void)
-export type MiddlewareHandlerData = ((data:any, req: IRequest, res: IResponse, next: NextFn) => void)
-export type MiddlewareHandlerAny = ((req: any, res: any, next: any) => void)
+export type MiddlewareHandler = ((req: IRequest, res: IResponse, next: NextFn) => any)
+export type MiddlewareHandlerData = ((data:any, req: IRequest, res: IResponse, next: NextFn) => any)
+export type MiddlewareHandlerAny = ((req: any, res: any, next: any) => any)
 
 export type MiddlewareHandlerOrAny = MiddlewareHandler | MiddlewareHandlerAny;
 
-export type MiddlewareHandlerError = ((e: any, req: IRequest, res: IResponse, next: NextFn) => void)
-export type MiddlewareHandlerAnyError = ((e: any, req: any, res: any, next: any) => void)
+export type MiddlewareHandlerError = ((e: any, req: IRequest, res: IResponse, next: NextFn) => any)
+export type MiddlewareHandlerAnyError = ((e: any, req: any, res: any, next: any) => any)
 
 export type MiddlewareHandlerErrorOrAny = MiddlewareHandlerError | MiddlewareHandlerAnyError
 

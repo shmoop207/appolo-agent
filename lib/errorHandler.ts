@@ -16,31 +16,35 @@ export class ErrorHandler {
         return 500;
     }
 
-    public static getErrorMessage(e: Error | HttpError, statusCode: number): { message: string, statusCode: number, code?: number, error?: string } {
+    public static getErrorMessage(e: HttpError, statusCode: number, errorMessage: boolean, errorStack: boolean): { message?: string, statusCode: number, code?: number, error?: string } {
 
-        let dto: { message: string, statusCode: number, code?: number, error?: string } = {
-            statusCode: statusCode,
-            message: e.toString()
+        let dto: { message?: string, statusCode: number, code?: number, error?: string } = {
+            statusCode: statusCode
         };
 
-        if (e instanceof HttpError) {
+        dto.message = e.message;
 
-            if (Objects.isPlain(e.data)) {
-                Object.assign(dto, e.data)
-            }
+        if (Objects.isPlain(e.data)) {
+            Object.assign(dto, e.data)
+        }
 
-            dto.message = e.message;
 
-            if (e.code) {
-                dto.code = e.code
-            }
+        if (e.code) {
+            dto.code = e.code
+        }
 
-            if (e.error) {
+        if (e.error) {
+
+            if (errorMessage) {
                 dto.error = (e.error as Error).message || e.error.toString();
+            }
 
-                if ((e.error as HttpError).code && !dto.code) {
-                    dto.code = (e.error as HttpError).code
-                }
+            if (errorStack && (e.error as Error).stack) {
+                dto.error = (e.error as Error).stack;
+            }
+
+            if ((e.error as HttpError).code && !dto.code) {
+                dto.code = (e.error as HttpError).code
             }
         }
 

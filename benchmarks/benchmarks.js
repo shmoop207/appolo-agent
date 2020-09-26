@@ -14,6 +14,10 @@ let child, instance;
             child = child_process_1.exec('node ./benchmarks/fastify.js');
             console.log("running fastify");
             break;
+        case "tinyhttp":
+            child = child_process_1.exec('node ./benchmarks/tinyhttp.js');
+            console.log("running tinyhttp");
+            break;
         default:
             console.log("running appolo");
             child = child_process_1.exec('node ./benchmarks/appolo.js');

@@ -1,7 +1,7 @@
 import {IOptions} from "./IOptions";
 import {Methods, Router} from '@appolo/router';
 import {IRequest} from "./request";
-import {Arrays, Enums, Promises,Objects} from "@appolo/utils";
+import {Arrays, Enums, Promises, Objects} from "@appolo/utils";
 import {Util} from "./util";
 import {
     Hooks,
@@ -19,14 +19,13 @@ import {
     handleMiddlewareError,
     notFoundMiddleware
 } from "./middleware";
-import {EventDispatcher,IEventOptions} from "@appolo/events";
+import {EventDispatcher, IEventOptions} from "@appolo/events";
 import {IApp} from "./IApp";
 import {Events} from "./events";
 import {Defaults} from "./defaults";
 import    http = require('http');
 import    https = require('https');
 import    url = require('url');
-import    qs = require('qs');
 import    querystring = require('querystring');
 import {sendMiddleware} from "./response";
 
@@ -53,7 +52,7 @@ export class Agent extends EventDispatcher implements IApp {
 
         this._options = Objects.defaults(options || {}, Defaults);
 
-        this._qsParse = this._options.qsParser === "qs" ? qs.parse : querystring.parse;
+        this._qsParse = this._options.qsParser || querystring.parse;
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
 
         this._middlewares = [];
