@@ -349,11 +349,10 @@ describe("e2e", () => {
     });
     describe('events', function () {
         it('should fire events', async () => {
-            app = index_1.createAgent({ fireRequestEvents: true });
+            app = index_1.createAgent({});
             let spy = sinon.spy();
-            for (let key in index_1.Events) {
-                app.once(index_1.Events[key], spy);
-            }
+            app.eventRouteAdded.once(spy);
+            app.eventServerClosed.once(spy);
             await app
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
@@ -364,7 +363,7 @@ describe("e2e", () => {
             res.should.to.have.status(200);
             res.should.to.be.json;
             await app.close();
-            spy.should.callCount(Object.keys(index_1.Events).length - 1);
+            spy.should.callCount(2);
         });
     });
     describe('errors', function () {

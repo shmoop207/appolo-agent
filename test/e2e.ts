@@ -5,7 +5,7 @@ import request = require("supertest");
 import   chaiHttp = require('chai-http');
 import   bodypaser = require('body-parser');
 import consolidate = require('consolidate');
-import {createAgent, Events, Hooks} from "../index"
+import {createAgent, Hooks} from "../index"
 import {IRequest} from "../lib/request";
 import {IResponse} from "../lib/response";
 import {Agent} from "../lib/agent";
@@ -513,14 +513,12 @@ describe("e2e", () => {
     describe('events', function () {
         it('should fire events', async () => {
 
-            app = createAgent({fireRequestEvents: true});
+            app = createAgent({});
 
             let spy = sinon.spy();
 
-            for (let key in Events) {
-                app.once(Events[key], spy);
-
-            }
+            app.eventRouteAdded.once(spy);
+            app.eventServerClosed.once(spy);
 
             await app
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
@@ -538,7 +536,7 @@ describe("e2e", () => {
             await app.close();
 
 
-            spy.should.callCount(Object.keys(Events).length - 1)
+            spy.should.callCount(2)
 
 
         });

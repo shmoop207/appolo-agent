@@ -1,6 +1,14 @@
-import {IEventDispatcher} from "@appolo/events";
 import {IOptions} from "./IOptions";
+import {IEvent} from "@appolo/events";
+import {Methods} from "@appolo/router/index";
+import {IRouteHandler} from "./types";
+import {IRequest} from "./request";
+import {IResponse} from "./response";
 
-export interface IApp extends IEventDispatcher {
+export type RouteAddedEvent = { method: Methods, path: string, handler: IRouteHandler }
+
+export interface IApp {
     options: IOptions
+    readonly eventRouteAdded: IEvent<RouteAddedEvent>
+    readonly eventServerClosed: IEvent<void>
 }

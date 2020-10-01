@@ -14,7 +14,6 @@ export {UnauthorizedError} from './lib/errors/unauthorizedError';
 export {NotFoundError} from './lib/errors/notFoundError';
 export {IRequest, Request} from './lib/request';
 export {IResponse, Response} from './lib/response';
-export {Events} from './lib/events';
 export {Methods} from '@appolo/router';
 export {IOptions} from "./lib/IOptions";
 export {CookieSerializeOptions} from "./lib/cookie";

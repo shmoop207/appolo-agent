@@ -1,6 +1,7 @@
 import {IOptions} from "./IOptions";
 import {Methods, Router} from '@appolo/router';
 import {IRequest} from "./request";
+import {IEvent, Event} from "@appolo/events";
 import {Arrays, Enums, Promises, Objects} from "@appolo/utils";
 import {Util} from "./util";
 import {
@@ -14,14 +15,12 @@ import {
 import {Server} from "./server";
 import {
     errorMiddleware,
-    fireEventMiddleware,
     handleMiddleware,
     handleMiddlewareError,
     notFoundMiddleware
 } from "./middleware";
 import {EventDispatcher, IEventOptions} from "@appolo/events";
-import {IApp} from "./IApp";
-import {Events} from "./events";
+import {IApp, RouteAddedEvent} from "./IApp";
 import {Defaults} from "./defaults";
 import    http = require('http');
 import    https = require('https');
@@ -29,7 +28,7 @@ import    url = require('url');
 import    querystring = require('querystring');
 import {sendMiddleware} from "./response";
 
-export class Agent extends EventDispatcher implements IApp {
+export class Agent implements IApp {
 
     private _middlewares: MiddlewareHandlerOrAny[];
     private _middlewaresNotFound: MiddlewareHandlerOrAny[];
@@ -47,8 +46,6 @@ export class Agent extends EventDispatcher implements IApp {
 
 
     public constructor(options?: IOptions) {
-
-        super();
 
         this._options = Objects.defaults(options || {}, Defaults);
 
@@ -78,9 +75,6 @@ export class Agent extends EventDispatcher implements IApp {
             return;
         }
 
-        if (this.options.fireRequestEvents) {
-            this._middlewares.push(fireEventMiddleware)
-        }
 
         this._middlewaresError.push(errorMiddleware);
 
@@ -235,7 +229,11 @@ export class Agent extends EventDispatcher implements IApp {
             this._addRouteToRouter(Methods.OPTIONS, path, middlewares.slice(0, -1), errors.slice(), route, hooks);
         }
 
-        this._requestApp.fireEvent(Events.RouteAdded, method, path, dto);
+        (this._requestApp.eventRouteAdded as Event<RouteAddedEvent>).fireEvent({
+            method: method as Methods,
+            path,
+            handler: dto
+        });
         return this;
     }
 
@@ -307,7 +305,7 @@ export class Agent extends EventDispatcher implements IApp {
     public async close(): Promise<void> {
         try {
             await Promises.fromCallback(c => this._server.close(c));
-            this._requestApp.fireEvent(Events.ServerClosed);
+            (this._requestApp.eventServerClosed as Event<void>).fireEvent();
 
         } catch (e) {
             if (e.message !== "Not running" && e.code !== "ERR_SERVER_NOT_RUNNING") {
@@ -326,13 +324,8 @@ export class Agent extends EventDispatcher implements IApp {
         return this;
     }
 
-    public on(event: Events | string, fn: (...args: any[]) => any, scope?: any, options?: IEventOptions): void {
-        return super.on(event.toString(), fn, scope, options)
-    }
-
-    public once(event: Events | string, fn?: (...args: any[]) => any, scope?: any): Promise<any> | void {
-        return super.once(event.toString(), fn, scope);
-    }
+    public readonly eventRouteAdded: IEvent<RouteAddedEvent> = new Event();
+    public readonly eventServerClosed: IEvent<void> = new Event();
 
     public decorate(fn: (req: http.IncomingMessage, res: http.ServerResponse, app: IApp) => void) {
         fn(http.IncomingMessage.prototype, http.ServerResponse.prototype, this._requestApp.constructor.prototype)

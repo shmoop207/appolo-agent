@@ -8,7 +8,6 @@ export interface IOptions{
     qsParser?: (query:string)=>{[index:string]:any}
     urlParser?: "url" | "fast"
     trustProxy?:boolean
-    fireRequestEvents?:boolean
     ssl?: {
         key: string
         cert: string

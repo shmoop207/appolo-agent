@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAgent = exports.Hooks = exports.Methods = exports.Events = exports.Response = exports.Request = exports.NotFoundError = exports.UnauthorizedError = exports.InternalServerError = exports.BadRequestError = exports.HttpError = exports.Agent = void 0;
+exports.createAgent = exports.Hooks = exports.Methods = exports.Response = exports.Request = exports.NotFoundError = exports.UnauthorizedError = exports.InternalServerError = exports.BadRequestError = exports.HttpError = exports.Agent = void 0;
 const agent_1 = require("./lib/agent");
 var agent_2 = require("./lib/agent");
 Object.defineProperty(exports, "Agent", { enumerable: true, get: function () { return agent_2.Agent; } });
@@ -18,8 +18,6 @@ var request_1 = require("./lib/request");
 Object.defineProperty(exports, "Request", { enumerable: true, get: function () { return request_1.Request; } });
 var response_1 = require("./lib/response");
 Object.defineProperty(exports, "Response", { enumerable: true, get: function () { return response_1.Response; } });
-var events_1 = require("./lib/events");
-Object.defineProperty(exports, "Events", { enumerable: true, get: function () { return events_1.Events; } });
 var router_1 = require("@appolo/router");
 Object.defineProperty(exports, "Methods", { enumerable: true, get: function () { return router_1.Methods; } });
 var types_1 = require("./lib/types");

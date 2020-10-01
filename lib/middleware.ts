@@ -3,8 +3,8 @@ import {IRequest} from "./request";
 import {MiddlewareHandlerData, MiddlewareHandler, MiddlewareHandlerError, NextFn} from "./types";
 import {HttpError} from "./errors/httpError";
 import {ErrorHandler} from "./errorHandler";
-import {Events} from "./events";
 import {InternalServerError} from "./errors/internalServerError";
+import {Event} from "@appolo/events";
 
 
 export function handleMiddleware(req: IRequest, res: IResponse, middlewares: (MiddlewareHandler | MiddlewareHandlerData)[], errorsMiddleware: MiddlewareHandlerError[], num: number = 0, err?: Error, data?: any) {
@@ -103,8 +103,4 @@ export function errorMiddleware(e: Error | HttpError, req: IRequest, res: IRespo
     res.json(msg);
 }
 
-export function fireEventMiddleware(req: IRequest, res: IResponse, next: NextFn) {
-    req.app.fireEvent(Events.RequestInit, req, res);
-    next();
-}
 
