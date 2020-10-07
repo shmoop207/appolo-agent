@@ -351,8 +351,8 @@ describe("e2e", () => {
         it('should fire events', async () => {
             app = index_1.createAgent({});
             let spy = sinon.spy();
-            app.eventRouteAdded.once(spy);
-            app.eventServerClosed.once(spy);
+            app.events.routeAdded.once(spy);
+            app.events.serverClosed.once(spy);
             await app
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
@@ -420,7 +420,7 @@ describe("e2e", () => {
             app.get("/test/send", (req, res) => {
                 res.send({ a: "bb" });
             });
-            app.addHook(index_1.Hooks.OnSend, function (data, req, res, next) {
+            app.hooks.onSend(function (data, req, res, next) {
                 data.a = "aaa";
                 next(null, data);
             });
@@ -435,7 +435,7 @@ describe("e2e", () => {
                 res.send({ a: "bb" });
             });
             let spy = sinon.spy();
-            app.addHook(index_1.Hooks.OnResponse, spy);
+            app.hooks.onResponse(spy);
             await app.listen(3000);
             let result = await request(app.handle).get("/test/send");
             spy.should.have.been.calledOnce;
@@ -446,7 +446,7 @@ describe("e2e", () => {
                 res.send(Object.assign({ a: "aa" }, req.model));
             });
             let spy = sinon.spy();
-            app.addHook(index_1.Hooks.PreMiddleware, function (req, res, next) {
+            app.hooks.onPreMiddleware(function (req, res, next) {
                 req.model = { b: "bb" };
                 next();
             });
@@ -461,7 +461,7 @@ describe("e2e", () => {
             app.get("/test/send", (req, res) => {
                 res.send(Object.assign({ a: "aa" }, req.model));
             });
-            app.addHook(index_1.Hooks.OnRequest, function (req, res, next) {
+            app.hooks.onRequest(function (req, res, next) {
                 req.model = { b: "bb" };
                 next();
             });

@@ -35,7 +35,7 @@ export interface NextFn {
     index?: number
 }
 
-export enum Hooks {
+export enum HooksTypes {
     "OnRequest" = "onRequest",
     "PreMiddleware" = "preMiddleware",
     "PreHandler" = "preHandler",
@@ -46,6 +46,6 @@ export enum Hooks {
 
 export type IHook = MiddlewareHandler | MiddlewareHandlerData | MiddlewareHandlerError
 
-export type IHooks = { [K in Hooks]?: IHook[] };
+export type IHooks = { [K in HooksTypes]?: IHook[] };
 
 

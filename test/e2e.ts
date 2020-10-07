@@ -517,8 +517,8 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.eventRouteAdded.once(spy);
-            app.eventServerClosed.once(spy);
+            app.events.routeAdded.once(spy);
+            app.events.serverClosed.once(spy);
 
             await app
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
@@ -628,7 +628,7 @@ describe("e2e", () => {
                 res.send({a: "bb"})
             });
 
-            app.addHook(Hooks.OnSend, function (data, req, res, next) {
+            app.hooks.onSend( function (data, req, res, next) {
                 data.a = "aaa";
                 next(null, data)
             });
@@ -653,7 +653,7 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.addHook(Hooks.OnResponse, spy);
+            app.hooks.onResponse( spy);
 
             await app.listen(3000);
 
@@ -673,7 +673,7 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.addHook(Hooks.PreMiddleware, function (req, res, next) {
+            app.hooks.onPreMiddleware( function (req, res, next) {
                 req.model = {b: "bb"};
                 next();
             });
@@ -696,7 +696,7 @@ describe("e2e", () => {
                 res.send({a: "aa", ...req.model})
             });
 
-            app.addHook(Hooks.OnRequest, function (req, res, next) {
+            app.hooks.onRequest( function (req, res, next) {
                 req.model = {b: "bb"};
                 next();
             });

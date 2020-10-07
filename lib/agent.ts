@@ -5,7 +5,7 @@ import {IEvent, Event} from "@appolo/events";
 import {Arrays, Enums, Promises, Objects} from "@appolo/utils";
 import {Util} from "./util";
 import {
-    Hooks,
+    HooksTypes,
     IHook, IHooks,
     IRouteHandler, MiddlewareHandlerData, MiddlewareHandler, MiddlewareHandlerError,
     MiddlewareHandlerErrorOrAny,
@@ -13,6 +13,7 @@ import {
     MiddlewareHandlerParams
 } from "./types";
 import {Server} from "./server";
+import {Hooks} from "./events/hooks";
 import {
     errorMiddleware,
     handleMiddleware,
@@ -27,13 +28,13 @@ import    https = require('https');
 import    url = require('url');
 import    querystring = require('querystring');
 import {sendMiddleware} from "./response";
+import {Events} from "./events/events";
 
 export class Agent implements IApp {
 
     private _middlewares: MiddlewareHandlerOrAny[];
     private _middlewaresNotFound: MiddlewareHandlerOrAny[];
     private _middlewaresError: MiddlewareHandlerErrorOrAny[];
-    private _hooks: IHooks = {};
 
     private _server: http.Server | https.Server;
     private _router: Router;
@@ -43,6 +44,8 @@ export class Agent implements IApp {
     private _requestApp: IApp;
     private _routes: Map<string, IRouteHandler>;
     private _isInitialized: boolean = false;
+    private _events: Events;
+    private _hooks: Hooks;
 
 
     public constructor(options?: IOptions) {
@@ -62,11 +65,12 @@ export class Agent implements IApp {
             decodeUrlParams: this._options.decodeUrlParams
         });
 
-        Enums.enumValues<Hooks>(Hooks).forEach(hook => this._hooks[hook] = []);
 
         this._server = Server.createServer(this);
 
         this._requestApp = this;
+        this._events = new Events();
+        this._hooks = new Hooks();
     }
 
     private _initialize() {
@@ -87,10 +91,18 @@ export class Agent implements IApp {
         this._isInitialized = true;
     }
 
+    public get hooks():Hooks{
+        return this._hooks;
+    }
+
+    public get events():Events{
+        return this._events;
+    }
+
     private _initializeHandler(handler: IRouteHandler) {
 
-        Object.keys(this._hooks).forEach(hookName =>
-            handler.hooks[hookName] = [...this._hooks[hookName], ...(handler.hooks[hookName] || [])]);
+        Object.keys(this._hooks.hooks).forEach(hookName =>
+            handler.hooks[hookName] = [...this._hooks.hooks[hookName], ...(handler.hooks[hookName] || [])]);
 
         if (handler.hooks.onSend.length) {
             handler.hooks.onSend.push(function (data, req, res, next) {
@@ -119,15 +131,6 @@ export class Agent implements IApp {
         this._requestApp = app;
     }
 
-    public addHook(name: Hooks.OnError, ...hook: MiddlewareHandlerError[]): this
-    public addHook(name: Hooks.OnResponse | Hooks.PreMiddleware | Hooks.PreHandler | Hooks.OnRequest, ...hook: MiddlewareHandler[]): this
-    public addHook(name: Hooks.OnSend, ...hook: MiddlewareHandlerData[]): this
-    public addHook(name: Hooks, ...hook: IHook[]): this {
-
-        this._hooks[name].push(...hook);
-
-        return this
-    }
 
     public handle = (request: http.IncomingMessage, response: http.ServerResponse) => {
         let $self = this, req: IRequest = request as any, res = response as any;
@@ -229,7 +232,7 @@ export class Agent implements IApp {
             this._addRouteToRouter(Methods.OPTIONS, path, middlewares.slice(0, -1), errors.slice(), route, hooks);
         }
 
-        (this._requestApp.eventRouteAdded as Event<RouteAddedEvent>).fireEvent({
+        (this._events.routeAdded as Event<RouteAddedEvent>).fireEvent({
             method: method as Methods,
             path,
             handler: dto
@@ -305,7 +308,7 @@ export class Agent implements IApp {
     public async close(): Promise<void> {
         try {
             await Promises.fromCallback(c => this._server.close(c));
-            (this._requestApp.eventServerClosed as Event<void>).fireEvent();
+            (this._events.serverClosed as Event<void>).fireEvent();
 
         } catch (e) {
             if (e.message !== "Not running" && e.code !== "ERR_SERVER_NOT_RUNNING") {
@@ -324,8 +327,6 @@ export class Agent implements IApp {
         return this;
     }
 
-    public readonly eventRouteAdded: IEvent<RouteAddedEvent> = new Event();
-    public readonly eventServerClosed: IEvent<void> = new Event();
 
     public decorate(fn: (req: http.IncomingMessage, res: http.ServerResponse, app: IApp) => void) {
         fn(http.IncomingMessage.prototype, http.ServerResponse.prototype, this._requestApp.constructor.prototype)

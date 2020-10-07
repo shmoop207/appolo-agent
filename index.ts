@@ -24,9 +24,9 @@ export {
     NextFn,
     MiddlewareHandlerErrorOrAny,
     MiddlewareHandlerOrAny,
-    Hooks
 } from './lib/types'
-
+export {Hooks} from './lib/events/hooks';
+export {Events} from './lib/events/events';
 export function createAgent(options?: IOptions) {
     return new Agent(options)
 }

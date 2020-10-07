@@ -9,6 +9,5 @@ export type RouteAddedEvent = { method: Methods, path: string, handler: IRouteHa
 
 export interface IApp {
     options: IOptions
-    readonly eventRouteAdded: IEvent<RouteAddedEvent>
-    readonly eventServerClosed: IEvent<void>
+
 }
