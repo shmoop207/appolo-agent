@@ -15,33 +15,44 @@ export class Hooks {
     }
 
     public onError(...hook: MiddlewareHandlerError[]):this {
-        this._hooks[HooksTypes.OnError].push(...hook);
+        this.addHook(HooksTypes.OnError,...hook);
         return this
     }
 
     public onRequest(...hook: MiddlewareHandler[]):this {
-        this._hooks[HooksTypes.OnRequest].push(...hook);
+        this.addHook(HooksTypes.OnRequest,...hook);
         return this
     }
 
     public onPreMiddleware(...hook: MiddlewareHandler[]):this {
-        this._hooks[HooksTypes.PreMiddleware].push(...hook);
+        this.addHook(HooksTypes.PreMiddleware,...hook);
         return this;
     }
 
     public onPreHandler(...hook: MiddlewareHandler[]):this {
-        this._hooks[HooksTypes.PreHandler].push(...hook);
+        this.addHook(HooksTypes.PreHandler,...hook);
         return this
     }
 
     public onResponse(...hook: MiddlewareHandler[]):this {
-        this._hooks[HooksTypes.OnResponse].push(...hook);
+        this.addHook(HooksTypes.OnResponse,...hook);
         return this
     }
 
     public onSend(...hook: MiddlewareHandlerData[]):this {
-        this._hooks[HooksTypes.OnSend].push(...hook);
+        this.addHook(HooksTypes.OnSend,...hook);
         return this
     }
+
+    public addHook(name: HooksTypes.OnError, ...hook: MiddlewareHandlerError[]): this
+    public addHook(name: HooksTypes.OnResponse | HooksTypes.PreMiddleware | HooksTypes.PreHandler | HooksTypes.OnRequest, ...hook: MiddlewareHandler[]): this
+    public addHook(name: HooksTypes.OnSend, ...hook: MiddlewareHandlerData[]): this
+    public addHook(name: HooksTypes, ...hook: IHook[]): this {
+
+        this._hooks[name].push(...hook);
+
+        return this
+    }
+
 
 }

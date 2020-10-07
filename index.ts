@@ -1,6 +1,6 @@
 import {IOptions} from "./lib/IOptions";
 import {Agent} from "./lib/agent";
-import {MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./lib/types";
+import {HooksTypes, MiddlewareHandler, MiddlewareHandlerAny, MiddlewareHandlerParams, NextFn} from "./lib/types";
 import {NotFoundError} from "./lib/errors/notFoundError";
 import {UnauthorizedError} from "./lib/errors/unauthorizedError";
 import {CookieSerializeOptions} from "./lib/cookie";
@@ -23,7 +23,7 @@ export {
     MiddlewareHandlerAny,
     NextFn,
     MiddlewareHandlerErrorOrAny,
-    MiddlewareHandlerOrAny,
+    MiddlewareHandlerOrAny,HooksTypes
 } from './lib/types'
 export {Hooks} from './lib/events/hooks';
 export {Events} from './lib/events/events';
