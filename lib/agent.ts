@@ -52,8 +52,6 @@ export class Agent implements IApp {
 
         this._options = Objects.defaults(options || {}, Defaults);
 
-        this._qsParse = this._options.qsParser || querystring.parse;
-        this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
 
         this._middlewares = [];
         this._middlewaresError = [];
@@ -78,6 +76,10 @@ export class Agent implements IApp {
         if (this._isInitialized) {
             return;
         }
+
+        this._qsParse = this._options.qsParser || querystring.parse;
+        this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
+
 
 
         this._middlewaresError.push(errorMiddleware);

@@ -688,6 +688,53 @@ describe("e2e", () => {
 
         });
 
+        it('should handle pre middleware async  hook', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "aa", ...req.model})
+            });
+
+
+            app.hooks.onPreMiddleware( async function (req, res ) {
+                await new Promise(resolve => setTimeout(resolve,1))
+                req.model = {b: "bb"};
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send");
+
+            result.status.should.be.eq(200);
+            result.body.a.should.be.eq("aa");
+            result.body.b.should.be.eq("bb");
+
+        });
+
+        it('should handle pre middleware async hook with error', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "aa", ...req.model})
+            });
+
+
+            app.hooks.onPreMiddleware( async function (req, res ) {
+                await new Promise(resolve => setTimeout(resolve,1))
+                throw new HttpError(500,"some error")
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send");
+
+            result.status.should.be.eq(500);
+            result.body.message.should.be.eq("some error");
+
+        });
+
         it('should handle on request  hook', async () => {
 
             app = createAgent();
