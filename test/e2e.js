@@ -352,7 +352,10 @@ describe("e2e", () => {
             app = index_1.createAgent({});
             let spy = sinon.spy();
             app.events.routeAdded.once(spy);
-            app.events.serverClosed.once(spy);
+            app.events.beforeServerOpen.once(spy);
+            app.events.beforeServerClosed.once(spy);
+            app.events.afterServerOpen.once(spy);
+            app.events.afterServerClosed.once(spy);
             await app
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
@@ -363,7 +366,7 @@ describe("e2e", () => {
             res.should.to.have.status(200);
             res.should.to.be.json;
             await app.close();
-            spy.should.callCount(2);
+            spy.should.callCount(5);
         });
     });
     describe('errors', function () {
@@ -443,11 +446,11 @@ describe("e2e", () => {
         it('should handle pre middleware  hook', async () => {
             app = index_1.createAgent();
             app.get("/test/send", (req, res) => {
-                res.send(Object.assign({ a: "aa" }, req.model));
+                res.send(Object.assign({ a: "aa" }, req.query));
             });
             let spy = sinon.spy();
             app.hooks.onPreMiddleware(function (req, res, next) {
-                req.model = { b: "bb" };
+                req.query = { b: "bb" };
                 next();
             });
             await app.listen(3000);
@@ -459,11 +462,11 @@ describe("e2e", () => {
         it('should handle pre middleware async  hook', async () => {
             app = index_1.createAgent();
             app.get("/test/send", (req, res) => {
-                res.send(Object.assign({ a: "aa" }, req.model));
+                res.send(Object.assign({ a: "aa" }, req.query));
             });
             app.hooks.onPreMiddleware(async function (req, res) {
                 await new Promise(resolve => setTimeout(resolve, 1));
-                req.model = { b: "bb" };
+                req.query = { b: "bb" };
             });
             await app.listen(3000);
             let result = await request(app.handle).get("/test/send");
@@ -474,7 +477,7 @@ describe("e2e", () => {
         it('should handle pre middleware async hook with error', async () => {
             app = index_1.createAgent();
             app.get("/test/send", (req, res) => {
-                res.send(Object.assign({ a: "aa" }, req.model));
+                res.send(Object.assign({ a: "aa" }, req.query));
             });
             app.hooks.onPreMiddleware(async function (req, res) {
                 await new Promise(resolve => setTimeout(resolve, 1));
@@ -488,10 +491,10 @@ describe("e2e", () => {
         it('should handle on request  hook', async () => {
             app = index_1.createAgent();
             app.get("/test/send", (req, res) => {
-                res.send(Object.assign({ a: "aa" }, req.model));
+                res.send(Object.assign({ a: "aa" }, req.query));
             });
             app.hooks.onRequest(function (req, res, next) {
-                req.model = { b: "bb" };
+                req.query = { b: "bb" };
                 next();
             });
             await app.listen(3000);

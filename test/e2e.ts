@@ -518,7 +518,10 @@ describe("e2e", () => {
             let spy = sinon.spy();
 
             app.events.routeAdded.once(spy);
-            app.events.serverClosed.once(spy);
+            app.events.beforeServerOpen.once(spy);
+            app.events.beforeServerClosed.once(spy);
+            app.events.afterServerOpen.once(spy);
+            app.events.afterServerClosed.once(spy);
 
             await app
                 .get("/test/params/:id/:name/", (req: IRequest, res: IResponse) => {
@@ -536,7 +539,7 @@ describe("e2e", () => {
             await app.close();
 
 
-            spy.should.callCount(2)
+            spy.should.callCount(5)
 
 
         });
@@ -668,13 +671,13 @@ describe("e2e", () => {
             app = createAgent();
 
             app.get("/test/send", (req: IRequest, res: IResponse) => {
-                res.send({a: "aa", ...req.model})
+                res.send({a: "aa", ...req.query})
             });
 
             let spy = sinon.spy();
 
             app.hooks.onPreMiddleware( function (req, res, next) {
-                req.model = {b: "bb"};
+                req.query = {b: "bb"};
                 next();
             });
 
@@ -693,13 +696,13 @@ describe("e2e", () => {
             app = createAgent();
 
             app.get("/test/send", (req: IRequest, res: IResponse) => {
-                res.send({a: "aa", ...req.model})
+                res.send({a: "aa", ...req.query})
             });
 
 
             app.hooks.onPreMiddleware( async function (req, res ) {
                 await new Promise(resolve => setTimeout(resolve,1))
-                req.model = {b: "bb"};
+                req.query = {b: "bb"};
             });
 
             await app.listen(3000);
@@ -717,7 +720,7 @@ describe("e2e", () => {
             app = createAgent();
 
             app.get("/test/send", (req: IRequest, res: IResponse) => {
-                res.send({a: "aa", ...req.model})
+                res.send({a: "aa", ...req.query})
             });
 
 
@@ -740,11 +743,11 @@ describe("e2e", () => {
             app = createAgent();
 
             app.get("/test/send", (req: IRequest, res: IResponse) => {
-                res.send({a: "aa", ...req.model})
+                res.send({a: "aa", ...req.query})
             });
 
             app.hooks.onRequest( function (req, res, next) {
-                req.model = {b: "bb"};
+                req.query = {b: "bb"};
                 next();
             });
 

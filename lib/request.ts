@@ -16,7 +16,6 @@ interface AppRequest {
     route: any;
     body?: { [index: string]: any }
     params?: { [index: string]: any }
-    model?: { [index: string]: any }
     next?: NextFn
     pathName: string
     originUrl: string;

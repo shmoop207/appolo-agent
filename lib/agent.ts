@@ -309,8 +309,13 @@ export class Agent implements IApp {
 
     public async close(): Promise<void> {
         try {
+
+            (this._events.beforeServerClosed as Event<void>).fireEvent();
+
             await Promises.fromCallback(c => this._server.close(c));
-            (this._events.serverClosed as Event<void>).fireEvent();
+
+            (this._events.afterServerClosed as Event<void>).fireEvent();
+
 
         } catch (e) {
             if (e.message !== "Not running" && e.code !== "ERR_SERVER_NOT_RUNNING") {
@@ -322,7 +327,11 @@ export class Agent implements IApp {
     public async listen(port: number, cb?: Function): Promise<Agent> {
         this._initialize();
 
+        await (this._events.beforeServerOpen as Event<void>).fireEvent();
+
         await Promises.fromCallback(c => this._server.listen(port, c as any));
+
+        await (this._events.afterServerOpen as Event<void>).fireEvent();
 
         (cb) && cb(this);
 
