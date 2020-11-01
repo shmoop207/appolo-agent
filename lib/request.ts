@@ -20,7 +20,6 @@ interface AppRequest {
     pathName: string
     originUrl: string;
     ip: string;
-    fireEvents: boolean
 
     is(types: string | string[]): boolean
 

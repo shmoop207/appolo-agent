@@ -38,10 +38,6 @@ interface IAppResponse {
 
     jsonp(obj: object)
 
-    render(path: string | string[], params?: any)
-
-    render(params?: any): Promise<void>
-
     send(data?: string | Buffer | any)
 
     gzip(): IResponse
