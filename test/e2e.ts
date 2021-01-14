@@ -189,13 +189,14 @@ describe("e2e", () => {
     describe('buffer', function () {
         it('should call route with gzip json', async () => {
 
+            let arr = new Array(1000)
+            arr.fill(1)
+
             await app
                 .get("/test/json", (req: IRequest, res: IResponse) => {
-                    res.gzip().json({query: req.query})
+                    res.gzip().json({query: req.query, data: arr})
                 })
-                .get("/test/json", (req: IRequest, res: IResponse) => {
-                    res.gzip().json({query: req.query})
-                })
+
                 .listen(3000);
 
             let res = await request(app.handle)
@@ -204,7 +205,7 @@ describe("e2e", () => {
             res.should.to.have.status(200);
             res.should.to.be.json;
             res.header["content-encoding"].should.be.eq("gzip")
-            res.header["content-length"].should.be.eq("53")
+            res.header["content-length"].should.be.eq("78")
 
             should.exist(res.body);
 
@@ -214,7 +215,7 @@ describe("e2e", () => {
 
         });
 
-        it('should call route with gzip object', async () => {
+        it('should not call route with gzip', async () => {
 
             await app
 
@@ -228,8 +229,8 @@ describe("e2e", () => {
 
             res.should.to.have.status(200);
             res.should.to.be.json;
-            res.header["content-encoding"].should.be.eq("gzip")
-            res.header["content-length"].should.be.eq("53")
+            should.not.exist(res.header["content-encoding"])
+            res.header["content-length"].should.be.eq("35")
 
             should.exist(res.body);
 
@@ -374,7 +375,7 @@ describe("e2e", () => {
         });
 
         it('should  call  Middleware error with stack', async () => {
-            app = createAgent({errorStack:true})
+            app = createAgent({errorStack: true})
             await app.use(function (req, res, next) {
                 next(new Error("test error"))
             })
@@ -631,7 +632,7 @@ describe("e2e", () => {
                 res.send({a: "bb"})
             });
 
-            app.hooks.onSend( function (data, req, res, next) {
+            app.hooks.onSend(function (data, req, res, next) {
                 data.a = "aaa";
                 next(null, data)
             });
@@ -656,7 +657,7 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.hooks.onResponse( spy);
+            app.hooks.onResponse(spy);
 
             await app.listen(3000);
 
@@ -676,7 +677,7 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.hooks.onPreMiddleware( function (req, res, next) {
+            app.hooks.onPreMiddleware(function (req, res, next) {
                 req.query = {b: "bb"};
                 next();
             });
@@ -700,8 +701,8 @@ describe("e2e", () => {
             });
 
 
-            app.hooks.onPreMiddleware( async function (req, res ) {
-                await new Promise(resolve => setTimeout(resolve,1))
+            app.hooks.onPreMiddleware(async function (req, res) {
+                await new Promise(resolve => setTimeout(resolve, 1))
                 req.query = {b: "bb"};
             });
 
@@ -724,9 +725,9 @@ describe("e2e", () => {
             });
 
 
-            app.hooks.onPreMiddleware( async function (req, res ) {
-                await new Promise(resolve => setTimeout(resolve,1))
-                throw new HttpError(500,"some error")
+            app.hooks.onPreMiddleware(async function (req, res) {
+                await new Promise(resolve => setTimeout(resolve, 1))
+                throw new HttpError(500, "some error")
             });
 
             await app.listen(3000);
@@ -746,7 +747,7 @@ describe("e2e", () => {
                 res.send({a: "aa", ...req.query})
             });
 
-            app.hooks.onRequest( function (req, res, next) {
+            app.hooks.onRequest(function (req, res, next) {
                 req.query = {b: "bb"};
                 next();
             });

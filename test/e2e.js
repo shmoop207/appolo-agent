@@ -131,12 +131,11 @@ describe("e2e", () => {
     });
     describe('buffer', function () {
         it('should call route with gzip json', async () => {
+            let arr = new Array(1000);
+            arr.fill(1);
             await app
                 .get("/test/json", (req, res) => {
-                res.gzip().json({ query: req.query });
-            })
-                .get("/test/json", (req, res) => {
-                res.gzip().json({ query: req.query });
+                res.gzip().json({ query: req.query, data: arr });
             })
                 .listen(3000);
             let res = await request(app.handle)
@@ -144,13 +143,13 @@ describe("e2e", () => {
             res.should.to.have.status(200);
             res.should.to.be.json;
             res.header["content-encoding"].should.be.eq("gzip");
-            res.header["content-length"].should.be.eq("53");
+            res.header["content-length"].should.be.eq("78");
             should.exist(res.body);
             res.body.query.should.be.ok;
             res.body.query.aaa.should.be.eq("bbb");
             res.body.query.ccc.should.be.eq("ddd");
         });
-        it('should call route with gzip object', async () => {
+        it('should not call route with gzip', async () => {
             await app
                 .get("/test/json", (req, res) => {
                 res.gzip().send({ query: req.query });
@@ -160,8 +159,8 @@ describe("e2e", () => {
                 .get('/test/json/?aaa=bbb&ccc=ddd');
             res.should.to.have.status(200);
             res.should.to.be.json;
-            res.header["content-encoding"].should.be.eq("gzip");
-            res.header["content-length"].should.be.eq("53");
+            should.not.exist(res.header["content-encoding"]);
+            res.header["content-length"].should.be.eq("35");
             should.exist(res.body);
             res.body.query.should.be.ok;
             res.body.query.aaa.should.be.eq("bbb");

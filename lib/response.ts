@@ -2,7 +2,7 @@ import    http = require('http');
 import    zlib = require('zlib');
 import    mime = require('mime');
 import {IRequest} from "./request";
-import {Objects,Arrays} from "@appolo/utils";
+import {Objects, Arrays} from "@appolo/utils";
 import {handleMiddleware} from "./middleware";
 import {Util} from "./util";
 import {Cookie, CookieSerializeOptions} from "./cookie";
@@ -40,7 +40,7 @@ interface IAppResponse {
 
     send(data?: string | Buffer | any)
 
-    gzip(): IResponse
+    gzip(options?: { min?: number }): IResponse
 
     cache(seconds: number): IResponse
 
@@ -117,7 +117,7 @@ proto.cache = function (seconds: number) {
 proto.cookie = function (name: string, value: any, options?: CookieSerializeOptions): IResponse {
     let opts: CookieSerializeOptions = options || {};
 
-    let val: string = Objects.isPlain(value)|| Array.isArray(value)  ? 'j:' + JSON.stringify(value) : String(value);
+    let val: string = Objects.isPlain(value) || Array.isArray(value) ? 'j:' + JSON.stringify(value) : String(value);
 
     if ('maxAge' in opts) {
         opts.expires = new Date(Date.now() + opts.maxAge);
@@ -170,7 +170,7 @@ proto.append = function (field: string, value: string): IResponse {
 };
 
 
-proto.gzip = function () {
+proto.gzip = function ({min = 1000}: { min?: number }={}) {
 
     let old = this.send, $self = this;
 
@@ -184,6 +184,11 @@ proto.gzip = function () {
         this.sending = true;
 
         data = checkHeaders.call(this, data);
+
+        if (data.length < min) {
+            old.call($self, data);
+            return;
+        }
 
 
         zlib.gzip(data, (err, gziped) => {
