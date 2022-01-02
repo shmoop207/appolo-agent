@@ -1,4 +1,4 @@
-import    http = require('http');
+import http = require('http');
 import {parse} from "url";
 import {NextFn} from "./types";
 import {IApp} from "./IApp";
@@ -123,7 +123,7 @@ function defineGetter(obj, name, getter) {
         enumerable: true,
         get: getter,
         set: function (value) {
-            this[name] = value
+            this["_" + name] = value;
         }
     });
 }
