@@ -1,6 +1,6 @@
-import    http = require('http');
-import    zlib = require('zlib');
-import    mime = require('mime');
+import http = require('http');
+import zlib = require('zlib');
+import mime = require('mime');
 import {IRequest} from "./request";
 import {Objects, Arrays} from "@appolo/utils";
 import {handleMiddleware} from "./middleware";
@@ -17,12 +17,12 @@ const emptyMethods = {
 };
 
 
-export interface IResponse extends http.ServerResponse, IAppResponse {
+export interface IResponse extends  IAppResponse {
 
 
 }
 
-interface IAppResponse {
+interface IAppResponse extends http.ServerResponse{
     req: IRequest
     sending: boolean
 
@@ -170,7 +170,7 @@ proto.append = function (field: string, value: string): IResponse {
 };
 
 
-proto.gzip = function ({min = 1000}: { min?: number }={}) {
+proto.gzip = function ({min = 1000}: { min?: number } = {}) {
 
     let old = this.send, $self = this;
 
@@ -276,7 +276,7 @@ proto.send = send;
 
 export function createResponse(request: http.IncomingMessage, response: http.ServerResponse): IResponse {
     let res = response as IResponse;
-    res.req = request as IRequest;
+    (res as any).req = request as IRequest;
     return res;
 }
 

@@ -2,8 +2,8 @@ import chai = require("chai");
 import sinon = require("sinon");
 import sinonChai = require("sinon-chai");
 import request = require("supertest");
-import   chaiHttp = require('chai-http');
-import   bodypaser = require('body-parser');
+import chaiHttp = require('chai-http');
+import bodypaser = require('body-parser');
 import consolidate = require('consolidate');
 import {createAgent, Hooks} from "../index"
 import {IRequest} from "../lib/request";
@@ -657,11 +657,33 @@ describe("e2e", () => {
 
             let spy = sinon.spy();
 
-            app.hooks.onResponse(spy);
+            app.hooks.onResponse(() => spy());
 
             await app.listen(3000);
 
             let result = await request(app.handle).get("/test/send");
+
+            spy.should.have.been.calledOnce
+
+        });
+
+        it('should handle on response hook 404', async () => {
+
+            app = createAgent();
+
+            app.get("/test/send", (req: IRequest, res: IResponse) => {
+                res.send({a: "bb"})
+            });
+
+            let spy = sinon.spy();
+
+            app.hooks.onResponse((req, res) => {
+                spy()
+            });
+
+            await app.listen(3000);
+
+            let result = await request(app.handle).get("/test/send2");
 
             spy.should.have.been.calledOnce
 

@@ -23,11 +23,11 @@ import {
 import {EventDispatcher, IEventOptions} from "@appolo/events";
 import {IApp, RouteAddedEvent} from "./IApp";
 import {Defaults} from "./defaults";
-import    http = require('http');
-import    https = require('https');
-import    url = require('url');
-import    querystring = require('querystring');
-import {sendMiddleware} from "./response";
+import http = require('http');
+import https = require('https');
+import url = require('url');
+import querystring = require('querystring');
+import {IResponse, sendMiddleware} from "./response";
 import {Events} from "./events/events";
 
 export class Agent implements IApp {
@@ -46,6 +46,9 @@ export class Agent implements IApp {
     private _isInitialized: boolean = false;
     private _events: Events;
     private _hooks: Hooks;
+
+    private _onSentHook: IHook[] = []
+    private _onResponseHook: IHook[] = []
 
 
     public constructor(options?: IOptions) {
@@ -81,7 +84,6 @@ export class Agent implements IApp {
         this._urlParse = this._options.urlParser === "fast" ? Util.parseUrlFast : url.parse;
 
 
-
         this._middlewaresError.push(errorMiddleware);
 
         this._middlewaresNotFound = [...this._middlewares, notFoundMiddleware];
@@ -90,14 +92,17 @@ export class Agent implements IApp {
             this._initializeHandler(handler);
         }
 
+        this._onSentHook = this.hooks.hooks[HooksTypes.OnSend];
+        this._onResponseHook = this.hooks.hooks[HooksTypes.OnResponse];
+
         this._isInitialized = true;
     }
 
-    public get hooks():Hooks{
+    public get hooks(): Hooks {
         return this._hooks;
     }
 
-    public get events():Events{
+    public get events(): Events {
         return this._events;
     }
 
@@ -149,7 +154,7 @@ export class Agent implements IApp {
             let route = this._router.find(req.method as Methods, req.pathName);
 
             if (!route) {
-                handleMiddleware(req, res, this._middlewaresNotFound, this._middlewaresError);
+                this._handleNotFound(response, req, res);
                 return;
             }
 
@@ -174,6 +179,20 @@ export class Agent implements IApp {
             handleMiddlewareError(req, res, this._middlewaresError, e);
         }
     };
+
+    private _handleNotFound(response: http.ServerResponse, req: IRequest, res: IResponse) {
+        if (this._onSentHook.length) {
+            res.send = sendMiddleware.bind(res, this._onSentHook, this._middlewaresError)
+        }
+
+        if (this._onResponseHook.length) {
+            let onResponseHook = this._onResponseHook;
+            response.once("finish", function () {
+                handleMiddleware(req, res, onResponseHook, []);
+            })
+        }
+        handleMiddleware(req, res, this._middlewaresNotFound, this._middlewaresError);
+    }
 
     public get options(): IOptions {
         return this._options;
@@ -227,11 +246,11 @@ export class Agent implements IApp {
         let dto = this._addRouteToRouter(method, path, middlewares, errors, route, hooks);
 
         if (method != Methods.HEAD) {
-            this._addRouteToRouter(Methods.HEAD, path, middlewares.slice(), errors.slice(), route, hooks);
+            this._addRouteToRouter(Methods.HEAD, path, middlewares.slice(), errors.slice(), route, Objects.clone(hooks));
         }
 
         if (method != Methods.OPTIONS) {
-            this._addRouteToRouter(Methods.OPTIONS, path, middlewares.slice(0, -1), errors.slice(), route, hooks);
+            this._addRouteToRouter(Methods.OPTIONS, path, middlewares.slice(0, -1), errors.slice(), route, Objects.clone(hooks));
         }
 
         (this._events.routeAdded as Event<RouteAddedEvent>).fireEvent({

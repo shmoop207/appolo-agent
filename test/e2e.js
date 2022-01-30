@@ -18,7 +18,7 @@ function delay(time) {
 describe("e2e", () => {
     let app;
     beforeEach(() => {
-        app = index_1.createAgent();
+        app = (0, index_1.createAgent)();
     });
     afterEach(async () => {
         await app.close();
@@ -66,7 +66,7 @@ describe("e2e", () => {
             res.body.ip.should.be.eq("::ffff:127.0.0.1");
         });
         it('should call  with params url encoded ', async () => {
-            let app = await index_1.createAgent({ decodeUrlParams: true })
+            let app = await (0, index_1.createAgent)({ decodeUrlParams: true })
                 .get("/test/params/:id/:name/", (req, res) => {
                 res.json({ query: req.query, params: req.params });
             })
@@ -257,7 +257,7 @@ describe("e2e", () => {
             res.text.should.be.eq('{"statusCode":500,"message":"Internal Server Error","error":"test error"}');
         });
         it('should  call  Middleware error with stack', async () => {
-            app = index_1.createAgent({ errorStack: true });
+            app = (0, index_1.createAgent)({ errorStack: true });
             await app.use(function (req, res, next) {
                 next(new Error("test error"));
             })
@@ -328,7 +328,7 @@ describe("e2e", () => {
             res.text.should.be.eq("");
         });
         it("Should  and get route", async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             await app.get("/test/1", (req, res) => {
                 res.send("working");
             }).listen(3000);
@@ -336,7 +336,7 @@ describe("e2e", () => {
             result.text.should.eq("working");
         });
         it("Should  and head route", async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             await app.get("/test/1", (req, res) => {
                 res.send("working");
             }).listen(3000);
@@ -348,7 +348,7 @@ describe("e2e", () => {
     });
     describe('events', function () {
         it('should fire events', async () => {
-            app = index_1.createAgent({});
+            app = (0, index_1.createAgent)({});
             let spy = sinon.spy();
             app.events.routeAdded.once(spy);
             app.events.beforeServerOpen.once(spy);
@@ -370,7 +370,7 @@ describe("e2e", () => {
     });
     describe('errors', function () {
         it('should throw valid errors', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             await app.get("/test/error", (req, res) => {
                 throw new httpError_1.HttpError(400, "test error", new httpError_1.HttpError(500, "inner error", null, null, 999));
             }).listen(3000);
@@ -381,7 +381,7 @@ describe("e2e", () => {
             result.body.error.should.be.eq("inner error");
         });
         it('should throw custom valid errors', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.use(function (err, req, res, next) {
                 res.status(500);
                 res.send('error');
@@ -395,7 +395,7 @@ describe("e2e", () => {
             result.text.should.be.eq("error");
         });
         it('should throw custom not found', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.use(function (err, req, res, next) {
                 if (err.statusCode == 404) {
                     res.statusCode = 404;
@@ -418,7 +418,7 @@ describe("e2e", () => {
     });
     describe('hooks', function () {
         it('should handle send hook', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.get("/test/send", (req, res) => {
                 res.send({ a: "bb" });
             });
@@ -432,18 +432,31 @@ describe("e2e", () => {
             result.body.a.should.be.eq("aaa");
         });
         it('should handle on response hook', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.get("/test/send", (req, res) => {
                 res.send({ a: "bb" });
             });
             let spy = sinon.spy();
-            app.hooks.onResponse(spy);
+            app.hooks.onResponse(() => spy());
             await app.listen(3000);
             let result = await request(app.handle).get("/test/send");
             spy.should.have.been.calledOnce;
         });
+        it('should handle on response hook 404', async () => {
+            app = (0, index_1.createAgent)();
+            app.get("/test/send", (req, res) => {
+                res.send({ a: "bb" });
+            });
+            let spy = sinon.spy();
+            app.hooks.onResponse((req, res) => {
+                spy();
+            });
+            await app.listen(3000);
+            let result = await request(app.handle).get("/test/send2");
+            spy.should.have.been.calledOnce;
+        });
         it('should handle pre middleware  hook', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.get("/test/send", (req, res) => {
                 res.send(Object.assign({ a: "aa" }, req.query));
             });
@@ -459,7 +472,7 @@ describe("e2e", () => {
             result.body.b.should.be.eq("bb");
         });
         it('should handle pre middleware async  hook', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.get("/test/send", (req, res) => {
                 res.send(Object.assign({ a: "aa" }, req.query));
             });
@@ -474,7 +487,7 @@ describe("e2e", () => {
             result.body.b.should.be.eq("bb");
         });
         it('should handle pre middleware async hook with error', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.get("/test/send", (req, res) => {
                 res.send(Object.assign({ a: "aa" }, req.query));
             });
@@ -488,7 +501,7 @@ describe("e2e", () => {
             result.body.message.should.be.eq("some error");
         });
         it('should handle on request  hook', async () => {
-            app = index_1.createAgent();
+            app = (0, index_1.createAgent)();
             app.get("/test/send", (req, res) => {
                 res.send(Object.assign({ a: "aa" }, req.query));
             });

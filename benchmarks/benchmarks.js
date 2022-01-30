@@ -7,20 +7,20 @@ let child, instance;
 (async function () {
     switch (process.env.TYPE) {
         case "express":
-            child = child_process_1.exec('node ./benchmarks/express.js');
+            child = (0, child_process_1.exec)('node ./benchmarks/express.js');
             console.log("running express");
             break;
         case "fastify":
-            child = child_process_1.exec('node ./benchmarks/fastify.js');
+            child = (0, child_process_1.exec)('node ./benchmarks/fastify.js');
             console.log("running fastify");
             break;
         case "tinyhttp":
-            child = child_process_1.exec('node ./benchmarks/tinyhttp.js');
+            child = (0, child_process_1.exec)('node ./benchmarks/tinyhttp.js');
             console.log("running tinyhttp");
             break;
         default:
             console.log("running appolo");
-            child = child_process_1.exec('node ./benchmarks/appolo.js');
+            child = (0, child_process_1.exec)('node ./benchmarks/appolo.js');
     }
     child.stdout.on('data', function (data) {
         run();
